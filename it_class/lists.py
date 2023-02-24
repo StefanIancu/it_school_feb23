@@ -144,16 +144,18 @@ matrix = [
     ["Claudiu", [9, 5, 2, 8]]
 ]
 
+
 for i in matrix:
     print(i[0], "media", sum(i[1]) / len(i[1]))
 
 media_aritmetica = sum(i[1]) / len(i[1])
 
 for i in matrix:
-    if media_aritmetica < 5.0:
+    if media_aritmetica <= 5.0:
         print("Corigent este: ", i[0])
         # print("Topul elevilor este: ", i[1].sort)  de verificat aici topul elevilor in functie de medie? 
-    print
+    else:
+        print("Nu este nici un corigent!")
 
 
 
