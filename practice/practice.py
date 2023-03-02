@@ -19,7 +19,7 @@ for elev in catalog:
     elif media_aritmetica < 5.0: 
         print(elev[0], "este corigent")
         print(elev[0], "ne vedem la toamna!")
-print("Topul elevilor este: ")             #De aflat topul elevilor?
+print("Topul elevilor este: ", elev[1].sort)             #De aflat topul elevilor?
 
 podium_sortat = sorted(podium)
 print("Mediile, in ordine crescatoare, sunt:", podium_sortat)

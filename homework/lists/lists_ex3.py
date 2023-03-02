@@ -9,16 +9,9 @@
 lista1 = [1, 3, 5]
 lista2 = [4, 6, 8]
 rezultat = []
-
-# for element in lista1:
-#     rezultat.append((element * lista2[0]))
-
-# print(rezultat)
     
-
 for i1, i2 in zip(lista1, lista2):
     rezultat.append(i1*i2)
 
 print(rezultat)
 
-print(type(rezultat))
