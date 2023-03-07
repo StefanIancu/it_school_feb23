@@ -139,10 +139,11 @@ if raspuns_cost_mc == "Y" or raspuns_cost_mc == "y":
 elif raspuns_cost_mc == "N" or raspuns_cost_mc == "n":
     print("Right, neither did I. Check this crazy math exercise out!")
 
-print("With the price you your in your country for ONE litre you can buy instead 1000 litres")
+print("You can drink up to one thousand litres of water with the cost of just one litre from the market")
 
-hhgfhhfty
-    
+
+
+
 
 
         
