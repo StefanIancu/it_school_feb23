@@ -9,18 +9,20 @@ myself = {
 
 MYSELF_TEMPLATE = "Subsemnatul prenume {} nume {} are varsta de {} ani si de profesie este {}."
 
-# print(MYSELF_TEMPLATE.format(myself["first_name"], myself["last_name"], myself["age"], myself["occupation"]))
+print(MYSELF_TEMPLATE.format(myself["first_name"], myself["last_name"], myself["age"], myself["occupation"]))
 
-# print("*" *30)
+print("*" * 30)
 
 #2. Creati un program care sa ceara utilizatorului numele si varsta, si sa afiseze un mesaj de salut personalizat.
 
-# user_name = input("Name: ")
-# user_age = input("Age: ")
+user_name = input("Name: ")
+user_age = input("Age: ")
 
 USER_TEMPLATE = "Salut {}, in varsta de {} ani, ne bucuram ca ai revenit!"
 
-# print(USER_TEMPLATE.format(user_name, user_age))
+print(USER_TEMPLATE.format(user_name, user_age))
+
+print("*" * 30)
 
 # 3. Creeaza o lista de cumparaturi cu cateva elemente in ea. (lista de stringuri).
 # Creeaza un string formatat pentru a afisa ceva asemanator cu : Azi trebuie sa cumperi: mere, pere, struguri.
@@ -32,12 +34,12 @@ lista_cumparaturi = [
     "ceapa"
 ]
 
-GROCERY_TEMPLATE = "Astazi va trebui sa cumpar {},{},{}."
+GROCERY_TEMPLATE = "Astazi va trebui sa cumpar {}, {}, {}, {}."
 
-# for aliment in lista_cumparaturi:
-#     print(GROCERY_TEMPLATE.format(aliment))
 
-# print(GROCERY_TEMPLATE.format(lista_cumparaturi[0], lista_cumparaturi[1], lista_cumparaturi[2], lista_cumparaturi[3]))
+print(GROCERY_TEMPLATE.format(lista_cumparaturi[0], lista_cumparaturi[1], lista_cumparaturi[2], lista_cumparaturi[3]))
+
+print("*" * 30)
 
 # 4. Creati un program care sa afiseze
     
