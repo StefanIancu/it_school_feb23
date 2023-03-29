@@ -40,7 +40,7 @@ class Car:
             print("Welcome, have a good trip!")
             consum_per_km = self.__cmc / 1000
             gas_to_burn = (consum_per_km * km) - self.__gas_in_tank
-            return (f"Your estimated gas to burn is: {gas_to_burn} litres, circa {self.}")
+            return (f"Your estimated gas to burn is: {gas_to_burn} litres!")
 
     def refill(self, litres):
         if litres > self.__tank_capacity - self.__gas_in_tank:
