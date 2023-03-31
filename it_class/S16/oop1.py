@@ -15,6 +15,7 @@ print(gas1.fill(ford, 10))
 
 print(ford.get_gas_percentage())
 
+print(ford.ready_for_fill())
 
 
 

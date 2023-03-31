@@ -61,11 +61,14 @@ class Car:
     
 
 class GasStation:
+    """Representation of a virtual gas station."""
 
     def __init__(self, pin):
         self.__price = 0 
         self.__busy = False
         self.__pin = pin
+        self.__engine_running = True
+
     def is_busy(self):
         return self.__busy
     
@@ -87,6 +90,24 @@ class GasStation:
                 break
         return x * self.__price
     
-    """stop engine inainte de alimentare si seteaza 
-    pompa la busy cat alimentezi, apoi pe free"""
+    def stop_engine(self):
+        if self.__engine_running:
+            self.__engine_running = False
     
+    def ready_for_fill(self):
+        """stop engine inainte de alimentare si seteaza 
+        pompa la busy cat alimentezi, apoi pe free"""
+        self.stop_engine()
+        while self.fill(car=Car, litters=12):
+            if not self.__busy:
+                self.__busy
+        self.__busy = False
+        print("Thanks for filling up with us!")
+                
+            
+
+
+            
+
+
+

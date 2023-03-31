@@ -1,4 +1,5 @@
 class Person:
+    """Representation of a human."""
 
     def __init__(self):
         self.__height = 170
