@@ -12,9 +12,6 @@ This is a temporary script file.
 #       -eg firstly should appear the length question. 
 #    4. final password shouldn't have duplicates
 
-
-
-
 import random
 from string import ascii_letters as alphabet
 from string import digits 
@@ -26,19 +23,19 @@ without_symbols = alphabet + digits
 
 
 
-def get_user_length() -> int:
+def get_user_length():
     """Gets the user wanted password length."""
     try:
-        user_length = int(input("Pass:"))
+        user_length = int(input("Password length: "))
     except ValueError:
         print("Sorry, wrong input. Need an int.")
     else: 
         return user_length
     
-def get_user_digits() -> str:
+def get_user_digits():
     """Gets the user's preference for using digits."""
     try: 
-        user_digits = input("Digits? [y/n]")
+        user_digits = input("Use digits? [y/n]")
     except ValueError:
         print("Sorry, need a yes or no.")
     else:
@@ -49,10 +46,10 @@ def get_user_digits() -> str:
         else:
             return False
         
-def get_user_symbols() -> str:
+def get_user_symbols():
     """Gets the user's preference for using symbols."""
     try: 
-        user_symbols = input("Symbols? [y/n]")
+        user_symbols = input("Use symbols? [y/n]")
     except ValueError:
         print("Sorry, need a yes or no.")
     else:
