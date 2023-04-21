@@ -90,9 +90,8 @@
 # print(lista_preturi)
 
 
+lista = "Ton Porumb Ceapa Moloz si Fauna"
 
-
-
-
+list1 = lista.split(" ")
 
 

@@ -1,4 +1,3 @@
-
 import random
 from string import ascii_letters as alphabet
 from string import digits 
@@ -9,6 +8,7 @@ without_digits = alphabet + symbols
 without_symbols = alphabet + digits
 
 print("PASSWORD GENERATOR")
+print("*" * 30)
 
 
 def get_user_length():
