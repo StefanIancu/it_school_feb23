@@ -9,8 +9,20 @@ def descending_order(num):
     # sorted_list2 = [int(x) for x in sorted_list]            
     string_list = [str(i) for i in sorted_list]         #transform lista de cifre int in str
     final = int("".join(string_list))                       #transform lista de str intr-un numar
-    print(type(final))
+    # print(type(final))
     return final
 
 print(descending_order(647123))
+
+
+
+
+
+#mai jos varianta simplificata de pe Codewars
+
+def Descending_Order(num):
+    return int("".join(sorted(str(num), reverse=True)))
+
+print(Descending_Order(647123))
+
 
