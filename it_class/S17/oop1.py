@@ -43,6 +43,7 @@ class Card:
     def __repr__(self) -> str:
         return self.__str__()
     
+
     def get_number(self) -> int:
         return CARD_VALUE_MAP[self.__number]
     
@@ -85,6 +86,10 @@ class Deck:
 
     def __init__(self) -> None:
         self.__cards = []
+        for v in CARD_VALUE_MAP:
+            for s in CARD_SYMBOLS:
+                self.__cards.append(Card(v, s))
+        self.__current_card = len(self.__cards) - 1
 
     # def get_size(self):
     #     return len(self.__cards)
@@ -92,9 +97,23 @@ class Deck:
     def __len__(self):
         #trebuie sa returneze int sau float
         return len(self.__cards)
+    
+    def __iter__(self):
+        self.__current_card = len(self.__cards) - 1
+        return self
+    
+    def __next__(self):
+        if self.__current_card == -1:
+            raise StopIteration()
+        cc = self.__cards[self.__current_card]
+        self.__current_card -= 1
+        return cc
+    
+    def __reversed__(self):
+        return reversed(self.__cards)
 
-
-
+    def get_value(self):
+        return CARD_VALUE_MAP  #to be continued
 
 
 d1 = Deck()
@@ -104,14 +123,31 @@ c1 = Card("A", CARD_SYMBOLS[0])
 c2 = Card("2", CARD_SYMBOLS[1])
 
 
-print(f"Carti in pachet: {len(d1)}")
+# print(f"Carti in pachet: {len(d1)}")
 
 # print(c1 > c2)
 # print(c1 >= c2)
 # print(c1 < c2)
 # print(c1 <= c2)
 
-print(c1)
+# print(c1)
 
 
+d1_iter = iter(d1)
 
+# print(next(d1))
+
+# for i in d1:
+#     print(i)
+
+
+def septica(deck:Deck):
+    for card in deck:
+        if card.get_value() >= 7:
+            yield card
+
+d1.shuffle()
+septica_cards = septica(d1)
+
+for i in septica_cards:
+    print(i)
