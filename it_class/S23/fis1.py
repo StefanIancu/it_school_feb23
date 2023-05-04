@@ -60,7 +60,7 @@ print("File operation done!")
 
 
 
-# 1-fa un script care citeste de la tastatura numele cu input si creeaza un fisier in acelasi folder cu scriptul cu numele 1.txt in acre sa fie inputul 
+# 1-fa un script care citeste de la tastatura numele cu input si creeaza un fisier in acelasi folder cu scriptul cu numele 1.txt in care sa fie inputul 
 # 2-fa un script in care e un generator care va da numerele lui Fibonacci, apeleaza next ori 100 ca sa extragi primele 100 numere si creeaza fisiere cu numele de la 1...100.txt 
 # si in fiecare fisier sa fie pe rand fiecare numar din sirul lui Fibonacci. toate fisierele intr-un folder Fibonacci creat cu mkdir langa script 
 # 3-read-only- afiseaza cand a fost programul ultima data de fiecare daca cand il pornesti cu time delta
