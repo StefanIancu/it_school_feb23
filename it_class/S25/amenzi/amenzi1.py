@@ -42,18 +42,29 @@ def submit_ticket(string):
         fout.write(get_text(string, amenda))
 
 
-# try:
-#     print(get_plate_numbers(file_path))
-# except OSError as err:
-#     print(err)
-#     sys.exit(1)
-
 try:
     amenzi_dir_path.mkdir(exist_ok=True)
 except OSError as err:
     print(err)
     sys.exit(1)
 
+
+try:
+    numbers = get_plate_numbers(file_path)
+except OSError as err:
+    print(err)
+else:
+    amenda = int(input("Valoare amenda:"))
+    for i in numbers:
+        submit_ticket(i)
+
+
+
+# try:
+#     print(get_plate_numbers(file_path))
+# except OSError as err:
+#     print(err)
+#     sys.exit(1)
 
 # try:
 #     numbers = get_plate_numbers(file_path)
@@ -69,16 +80,5 @@ except OSError as err:
 #         # with open(file_path, "w") as fout:
 #         #     fout.write(get_text(i, 1000))
      
-
-
-
-try:
-    numbers = get_plate_numbers(file_path)
-except OSError as err:
-    print(err)
-else:
-    amenda = int(input("Valoare amenda:"))
-    for i in numbers:
-        submit_ticket(i)
 
     
