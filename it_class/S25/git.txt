@@ -1,0 +1,47 @@
+# Clonare repo = descarcare cod
+git clone URL
+
+# Initializare repo
+git init
+
+# Verificare stare
+git status
+
+# Adaugare fisiere pentru a fi incluse in urmatorul commit
+git add NUME_FISIER NUME_FISIER NUME_FISIER
+# Adauga toate fisierele
+git add .
+
+
+# Stergere fisirere din lista de modificari pt committ
+git rm --cached NUME_FISIER
+
+# commit = salveaza starea curenta
+git commit -m "MESAJ"
+git commit
+# Se iese din editor cu ESC > : > wq > ENTER
+
+# afiseaza configuratia
+git config --global -l
+
+# configureaza email si nume
+git config --global user.email "EMAIL GITHUB"
+git config --global user.name "NUME PRENUME"
+
+# afiseaza istorie
+git log
+
+# intoarcere in timp - reset la commit
+git reset COMMIT_ID
+EX: git reset d7c2b7a24cf3e7594497a59c11357bca14905c7c
+
+# Uploadeaza modificari
+git push
+
+# Descarcam cele mai noi modificari
+git pull
+
+# Verificare diferente intainte de a da commit
+git diff
+
+git pull test
