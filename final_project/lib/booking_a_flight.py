@@ -1,4 +1,12 @@
 from skeleton import DESTINATIONS_AND_PRICES
+from skeleton import FLIGHTS
+import random
+from string import ascii_letters
+from fpdf import FPDF
+from skeleton import FROM as airport
+from skeleton import GATE 
+from qrcode import QRCode
+
 
 class BookFlight:
 
@@ -61,18 +69,50 @@ class BookFlight:
         return user_date
 
     def generate_ticket(self):
-        self.get_user_destination()
-        self.get_user_seat()
-        self.get_user_luggage()
-        self.get_user_date()
+        destination = self.get_user_destination()
+        seat = self.get_user_seat()
+        luggage = self.get_user_luggage()
+        date = self.get_user_date()
+        # flight_number = f"{random.choice(ascii_letters)}{random.choice(range(9))}"
+        # flight_number = PlaneTicket.number
+        # FLIGHTS.append(flight_number)
+
+    def generate_pdf(self):
+        pdf = FPDF()
+        pdf.add_page(orientation="L")
+        pdf.set_font("Arial", size = 15)
+        pdf.cell(180, 10, txt=f"Ticket no: ",
+            ln = 1)
+        pdf.cell(200, 10, txt = "BOARDING PASS",
+            ln = 2, align= "C")
 
 
+        pdf.cell(200, 10, txt = f"Mr./Mrs. ",
+            ln = 3, align= "L")
+        pdf.cell(150, 10, txt=f"Seat number: ",
+            ln = 4, align="L")
+        
+        pdf.cell(150, 10, txt=f"Departure date: ",
+            ln = 7, align = "R")
+        pdf.cell(150, 10, txt=f"Gate: {GATE}",
+            ln = 8, align = "R")
+        pdf.cell(150, 10, txt=f"From: {airport}",
+            ln = 9, align = "R")
+        pdf.cell(150, 10, txt=f"Destination: ",
+            ln = 10, align = "R")
+        
 
-book = BookFlight("john")
+        pdf.cell(100, 10, txt="Thank you for choosing to fly with us!",
+            ln = 11, align="C")
+        
+        # pdf.image("plane.jpeg", w=40, h=40)
+        
+        # pdf.code39("*fpdf2*", x=30, y=50, w=4, h=20,)
+
+        pdf.output("planeticket.pdf")
 
 
+book = BookFlight("Where do you want to go?")
 
+book.generate_pdf()
 
-# print(book.current_price)
-# book.generate_ticket()
-# print(book.current_price)

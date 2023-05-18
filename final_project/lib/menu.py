@@ -11,4 +11,3 @@ class Menu(BookFlight):
 
 m1 = Menu()
 
-print(m1.book_a_flight())
