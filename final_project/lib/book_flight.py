@@ -73,6 +73,6 @@ book = BookFlight("john")
 
 
 
-print(book.current_price)
-book.generate_ticket()
-print(book.current_price)
+# print(book.current_price)
+# book.generate_ticket()
+# print(book.current_price)
