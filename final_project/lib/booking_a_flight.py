@@ -114,5 +114,6 @@ class BookFlight:
 
 book = BookFlight("Where do you want to go?")
 
+
 book.generate_pdf()
 
