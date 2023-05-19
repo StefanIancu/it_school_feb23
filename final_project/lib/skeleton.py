@@ -16,7 +16,3 @@ MONTH = "06.2023"
 
 GATE = random.choice(range(30))
 
-
-
-
-

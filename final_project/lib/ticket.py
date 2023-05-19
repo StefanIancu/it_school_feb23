@@ -4,7 +4,7 @@ import random
 from string import ascii_uppercase
 from skeleton import DESTINATIONS_AND_PRICES
 
-class PlaneTicket:
+class PlaneTicket(BookFlight):
 
     current_number = 100
 
@@ -45,9 +45,10 @@ ticket2 = PlaneTicket(1, "Daniel Gheorghe", 46, "11.07.2023", "Rome")
 ticket3 = PlaneTicket(1, "Andreea Savu", 47, "19.07.2023", "Tokyo")
 
 
+# print(FLIGHTS)
+
+
+# def match_a_ticket():
+
+
 print(FLIGHTS)
-
-
-def match_a_ticket():
-    
-

@@ -8,6 +8,8 @@ from skeleton import GATE
 from qrcode import QRCode
 from skeleton import MONTH
 
+#to implement back method that takes user to the main menu
+
 class BookFlight:
 
     current_price = 0
@@ -25,7 +27,9 @@ class BookFlight:
         return name_answer
     
     def get_user_destination(self):
-        """Takes the user destination."""
+        """Takes the user destination and matches the starting price of the 
+        ticket with the specific destination price from DESTINATIONS_AND_PRICES 
+        constant. This can be changed anytime."""
         while True:
             destination_answer = input(f"Welcome, user. Where would you like to go?")
             if destination_answer.lower() in list(DESTINATIONS_AND_PRICES.keys()):
@@ -37,7 +41,8 @@ class BookFlight:
         
     
     def get_user_seat(self):
-        """Asks the user if they would like to book a seat or not."""
+        """Asks the user if they would like to book a seat or not. If the user
+        replies positively, the current price will increase."""
         while True:
             seat_answer = input("Would you like to reserve a seat? [y/n]")
             if seat_answer in "yesYES":
@@ -51,7 +56,8 @@ class BookFlight:
         return seat_answer
     
     def get_user_luggage(self):
-        """Asks the user if they would like to book a luggage."""
+        """Asks the user if they would like to book a luggage. If the user 
+        replies positively, the current price will increase."""
         while True:
             luggage_answer = input("Would you like to book a luggage? [y/n]")
             if luggage_answer in "yesYES":
@@ -92,7 +98,7 @@ class BookFlight:
         print("Your ticket has been generated. Thank you for picking us!")
 
     def generate_pdf(self, seat, name, destination, date):
-        """Method that takes some usor information and fills a PDF file
+        """Method that takes some user information and fills a PDF file
         with the specific information."""
         pdf = FPDF()
         pdf.add_page(orientation="L")
@@ -120,7 +126,7 @@ class BookFlight:
         
 
         pdf.cell(100, 10, txt="Thank you for choosing to fly with us!",
-            ln = 11, align="C")
+            ln = 11, align = "C")
         
         # pdf.image("plane.jpeg", w=40, h=40)
         
@@ -129,12 +135,6 @@ class BookFlight:
         pdf.output("planeticket.pdf")
 
 
-book = BookFlight("Where do you want to go?")
+menu_prompt1 = BookFlight("Where do you want to go?")
 
-
-# book.generate_pdf()
-
-print(f"Your current cost is ${book.current_price}.")
-book.generate_ticket()
-print(f"Your total cost with taxes is ${book.current_price}.")
 

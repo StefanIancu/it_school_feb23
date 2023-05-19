@@ -10,10 +10,12 @@ class SeeFlights:
         return self.__title
 
     def search_flight(self, number: str):
+        """Asks users the ticket number and searches the number in the list
+        of FLIGHTS constant. The list updates with every ticket generated."""
         if number in FLIGHTS:
             print("Flight found!")
         else:
-            print("There are no flights mathching the criteria.")
+            print("There are no flights matching the criteria.")
 
     def go_back(self):
         pass #should return to main menu
@@ -23,4 +25,4 @@ s1 = SeeFlights("See your flights")
 
 # s1.search_flight("v2")
 
-# print(FLIGHTS)
+print(FLIGHTS)

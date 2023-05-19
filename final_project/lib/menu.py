@@ -1,13 +1,26 @@
-from book_flight import BookFlight
+import sys
+from typing import List
+from abc import abstractmethod, ABC
+from booking_a_flight import BookFlight
 
-class Menu(BookFlight):
+class MenuItem(ABC):
 
-    def __init__(self):
-        self
+    def __init__(self, title):
+        self.title = title
 
-    def book_a_flight(self):
-        return BookFlight.title
-    
+      @abstractmethod
+    def execute(self):
+        pass
 
-m1 = Menu()
 
+class MenuActionItem(MenuItem):
+
+    def __init__(self, title, ticket):
+        super.__init__(title)
+        self.ticket: BookFlight = ticket
+        
+
+class ExitItem(MenuItem):
+
+    def execute(self):
+        sys.exit(0)
