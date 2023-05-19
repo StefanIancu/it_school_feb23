@@ -11,9 +11,11 @@ DESTINATIONS_AND_PRICES = {
 
 FLIGHTS = []
 
-FROM = "Bucharest"
+FROM = "Bucharest OTP"
+MONTH = "06.2023"
 
 GATE = random.choice(range(30))
+
 
 
 
