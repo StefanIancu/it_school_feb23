@@ -8,14 +8,13 @@ class PlaneTicket(BookFlight):
 
     current_number = 100
 
-    def __init__(self, number, name: str, seat: int, date: str, destination: str):
+    def __init__(self, number, name: str, seat, date, destination):
         self.__number = f"{random.choice(ascii_uppercase)}{PlaneTicket.current_number}"
         self.__name = name
         self.__seat = seat
         self.__date = date
         self.__destination = destination
         PlaneTicket.current_number += 1
-        FLIGHTS.append(self.__number)
         
 
     @property
@@ -40,9 +39,9 @@ class PlaneTicket(BookFlight):
             print(f"Destination not in {DESTINATIONS_AND_PRICES}.")
         return self.__destination
 
-ticket = PlaneTicket(1, "Stefan Iancu", 45, "15.07.2023", "Budapest")
-ticket2 = PlaneTicket(1, "Daniel Gheorghe", 46, "11.07.2023", "Rome")
-ticket3 = PlaneTicket(1, "Andreea Savu", 47, "19.07.2023", "Tokyo")
+# ticket = PlaneTicket(1, "Stefan Iancu", 45, "15.07.2023", "Budapest")
+# ticket2 = PlaneTicket(1, "Daniel Gheorghe", 46, "11.07.2023", "Rome")
+# ticket3 = PlaneTicket(1, "Andreea Savu", 47, "19.07.2023", "Tokyo")
 
 
 # print(FLIGHTS)

@@ -6,6 +6,8 @@ from fpdf import FPDF
 from skeleton import DESTINATIONS_AND_PRICES, FLIGHTS
 from skeleton import FROM as airport
 from skeleton import GATE, MONTH
+from skeleton import FLIGHTS
+from ticket import PlaneTicket
 
 
 class BookFlight:
@@ -84,24 +86,28 @@ class BookFlight:
                 print("Please enter a valid format [day].")
         return user_date
 
+
     def generate_ticket(self):
         """Main method that takes all the information together and generates
-        a ticket."""
+        an object - ticket. It also adds the ticket's number to the FLIGHTS list."""
         name = self.get_user_name()
         destination = self.get_user_destination()
         seat = self.get_user_seat()
         luggage = self.get_user_luggage()
         date = self.get_user_date()
-        self.generate_pdf(seat, name, destination, date)
         print("Your ticket has been generated. Thank you for picking us!")
+        ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination)
+        FLIGHTS.append(ticket.number)
+        number = ticket.number
+        self.generate_pdf(ticket.number, seat, name, destination, date)
 
-    def generate_pdf(self, seat, name, destination, date):
+    def generate_pdf(self, number, seat, name, destination, date):
         """Method that takes some user information and fills a PDF file
         with the specific information."""
         pdf = FPDF()
         pdf.add_page(orientation="L")
         pdf.set_font("Arial", size=15)
-        pdf.cell(180, 10, txt=f"Ticket no: ", ln=1)
+        pdf.cell(180, 10, txt=f"Ticket no: {number} ", ln=1)
         pdf.cell(200, 10, txt="BOARDING PASS", ln=2, align="C")
 
         pdf.cell(200, 10, txt=f"Mr./Mrs. {name} ", ln=3, align="L")
@@ -123,8 +129,6 @@ class BookFlight:
 
         pdf.output("planeticket.pdf")
 
-
-menu_prompt1 = BookFlight("Where do you want to go?")
 
 
 class SeeFlights:
@@ -207,3 +211,11 @@ class Help:
         return self.__title
 
     # TBA
+
+demo = BookFlight("demo")
+
+print(FLIGHTS)
+
+demo.generate_ticket()
+
+print(FLIGHTS)
