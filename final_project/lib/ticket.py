@@ -48,6 +48,3 @@ class PlaneTicket(BookFlight):
 
 
 # def match_a_ticket():
-
-
-print(FLIGHTS)

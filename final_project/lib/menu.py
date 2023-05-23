@@ -40,16 +40,25 @@ class MyFlights(MenuItem):
 class TravelTo(MenuItem):
 
     def execute(self):
-        print(f"{self.title:-^50}\n")
-        input("Need to call <<where to go>> class methods. ")
+            print(f"{self.title:-^50}\n")
+            print("1. See destinations")
+            try:
+                WhereToGo.see_list_of_destinations()
+            except OSError as err:
+                print(err)
+            input("Press any key to return.")
+
 
 
 class GiveHelp(MenuItem):
 
     def execute(self):
         print(f"{self.title:-^50}\n")
-        WhereToGo.see_list_of_destinations
-        input("Need to call <<help>> class methods.")
+        try:
+            Help.ask_help()
+        except OSError as err:
+            print(err)
+        input("Press any key to return.")
 
 
 class MenuUserChoice(MenuItem):
@@ -64,7 +73,7 @@ class MenuUserChoice(MenuItem):
 
         while user_choice not in range(1, len(self.__commands) + 1):
             for i, command in enumerate(self.__commands, start=1):
-                print(f"{i} -> {command.title}")
+                print(f"{i} - {command.title}")
             try:
                 user_choice = int(
                     input("Please choose an item from the list: "))
@@ -89,7 +98,7 @@ class ExitItem(MenuItem):
 main_menu = MenuUserChoice("Welcome to FlyHome!")
 main_menu.add_choice(FindPlane("Book a flight."))
 main_menu.add_choice(MyFlights("See your flights"))
-main_menu.add_choice(TravelTo("See where to travel"))
+main_menu.add_choice(TravelTo("Where to travel"))
 main_menu.add_choice(GiveHelp("Get help"))
 main_menu.add_choice(ExitItem("Exit"))
 

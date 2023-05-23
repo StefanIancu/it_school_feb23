@@ -8,6 +8,13 @@ from skeleton import FROM as airport
 from skeleton import GATE, MONTH
 from skeleton import FLIGHTS
 from ticket import PlaneTicket
+from skeleton import ROOT
+
+
+
+#to fix the FLIGHTS list issue / to succesfully store values in it 
+
+
 
 
 class BookFlight:
@@ -24,7 +31,7 @@ class BookFlight:
     def get_user_name(self):
         """Takes the user's name."""
         name_answer = input("What is your name?")
-        return name_answer
+        return name_answer.title()
 
     def get_user_destination(self):
         """Takes the user destination and matches the starting price of the
@@ -33,7 +40,7 @@ class BookFlight:
         while True:
             destination_answer = input(f"Welcome, user. Where would you like to go?")
             if destination_answer.lower() in list(DESTINATIONS_AND_PRICES.keys()):
-                BookFlight.current_price += DESTINATIONS_AND_PRICES[destination_answer]
+                BookFlight.current_price += DESTINATIONS_AND_PRICES[destination_answer.lower()]
                 break
             else:
                 print("We are sorry. We currently don't fly there!")
@@ -100,7 +107,7 @@ class BookFlight:
         FLIGHTS.append(ticket.number)
         number = ticket.number
         self.generate_pdf(ticket.number, seat, name, destination, date)
-
+       
     def generate_pdf(self, number, seat, name, destination, date):
         """Method that takes some user information and fills a PDF file
         with the specific information."""
@@ -136,7 +143,7 @@ class BookFlight:
         pdf.cell(100, 10, txt="**No refund available for this flight.",
                  ln=22, align="")
         
-        pdf.output("planeticket.pdf")
+        pdf.output(f"planeticket_{number}.pdf")
 
 
 
@@ -170,15 +177,16 @@ class WhereToGo:
     def title(self):
         return self.__title
 
-    def see_list_of_destinations(self):
-        print("List of destinations")
+    @staticmethod
+    def see_list_of_destinations():
         with open("destinations.csv") as fin:
             reader = csv.reader(fin.readlines())
 
         for line in reader:
-            print(line[0])
+            print(f"{line[0]}, €{line[1]}")
 
-    def download_brochure(self):
+    @staticmethod
+    def download_brochure():
         pdf = FPDF()
 
         pdf.add_page()
@@ -219,12 +227,10 @@ class Help:
     def title(self):
         return self.__title
 
-    # TBA
-
-demo = BookFlight("demo")
-
-print(FLIGHTS)
-
-demo.generate_ticket()
-
-print(FLIGHTS)
+    @staticmethod
+    def ask_help():
+        with open(ROOT / "travel.txt", "r") as fin:
+            content = fin.readlines()
+  
+        for line in content:
+            print(line.strip(" \n"))
