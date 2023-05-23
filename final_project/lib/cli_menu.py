@@ -75,7 +75,7 @@ class BookFlight:
         This is combined with the MONTH constant which is the current month of
         the year. The constant can be changed anytime."""
         while True:
-            user_date = input("When would you like to fly? [day]")
+            user_date = input(f"When would you like to fly? [day.{MONTH}]")
             if user_date.isdigit():
                 user_date = int(user_date)
                 if user_date > 0:
@@ -105,28 +105,37 @@ class BookFlight:
         """Method that takes some user information and fills a PDF file
         with the specific information."""
         pdf = FPDF()
-        pdf.add_page(orientation="L")
+        pdf.add_page(orientation="l")
         pdf.set_font("Arial", size=15)
-        pdf.cell(180, 10, txt=f"Ticket no: {number} ", ln=1)
-        pdf.cell(200, 10, txt="BOARDING PASS", ln=2, align="C")
+        pdf.cell(40, 10, border =1, txt=f"Ticket no: {number} ", ln=1)
+        pdf.cell(270, 10, txt="FlyHome", ln=1, align="R")
+        pdf.cell(250, 20, txt="BOARDING PASS", ln=2, align="C")
 
-        pdf.cell(200, 10, txt=f"Mr./Mrs. {name} ", ln=3, align="L")
-
+        pdf.cell(52, 10, txt=f"Mr./Mrs. {name} ", ln=3, align="L")
         pdf.cell(150, 10, txt=f"Seat number: {seat}", ln=4, align="L")
 
-        pdf.cell(150, 10, txt=f"Departure date: {date}.{MONTH}", ln=7, align="R")
-        pdf.cell(150, 10, txt=f"Gate: {GATE}", ln=8, align="R")
-        pdf.cell(150, 10, txt=f"From: {airport}", ln=9, align="R")
-        pdf.cell(150, 10, txt=f"To: {destination.title()}", ln=10, align="R")
+        pdf.cell(270, 10, txt=f"Departure date: {date}.{MONTH}", ln=7, align="R")
+        pdf.cell(270, 10, txt=f"Gate: {GATE}", ln=8, align="R")
+        pdf.cell(270, 10, txt=f"From: {airport}", ln=9, align="R")
+        pdf.cell(270, 10, txt=f"To: {destination.title()}", ln=10, align="R")
+        pdf.image("airplane.jpeg", w=10, h=10, x=235, y=100)
 
+        pdf.cell(100, 10, txt="Gate closes 15 minutes before departure.",
+                 ln = 11, align="L") 
         pdf.cell(
-            100, 10, txt="Thank you for choosing to fly with us!", ln=11, align="C"
+            100, 10, txt="Thank you for choosing to fly with us!", ln=12, align="L"
         )
+        pdf.cell(100, 10, txt = "More details at: www.flyhome.com",
+                 ln = 13, align= "L")
+        
+        pdf.image("plane.jpeg", w=60, h=60, x=190, y=1)
+        pdf.code39("*fpdf2*", x=130, y=140, w=4, h=15)
 
-        # pdf.image("plane.jpeg", w=40, h=40)
-
-        # pdf.code39("*fpdf2*", x=30, y=50, w=4, h=20,)
-
+        pdf.cell(100, 10, txt="*Please watch screens for border time.",
+                 ln=21, align="L")
+        pdf.cell(100, 10, txt="**No refund available for this flight.",
+                 ln=22, align="")
+        
         pdf.output("planeticket.pdf")
 
 
