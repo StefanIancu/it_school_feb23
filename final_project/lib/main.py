@@ -1,12 +1,10 @@
 import sys
 from typing import List
 from abc import abstractmethod, ABC
-from cli_menu import BookFlight
-from cli_menu import SeeFlights
-from cli_menu import WhereToGo
-from cli_menu import Help
-from skeleton import FLIGHTS
-from ticket import PlaneTicket
+from development import BookFlight 
+from development import WhereToGo
+from development import Help
+from development import PlaneTicket
 from flights_db import Database
 
 class MenuItem(ABC):
@@ -53,7 +51,6 @@ class TravelTo(MenuItem):
 
     def execute(self):
             print(f"{self.title:-^50}\n")
-            print("1. See destinations????")
             try:
                 WhereToGo.see_list_of_destinations()
             except OSError as err:

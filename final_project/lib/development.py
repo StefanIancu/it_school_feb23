@@ -2,16 +2,14 @@ import csv
 import random
 from string import ascii_uppercase
 import sqlite3
+from datetime import date
 
 from fpdf import FPDF
-from skeleton import DESTINATIONS_AND_PRICES, FLIGHTS
+from skeleton import DESTINATIONS_AND_PRICES
 from skeleton import FROM as airport
-from skeleton import GATE, MONTH
-from skeleton import FLIGHTS
-from ticket import PlaneTicket
+from skeleton import GATE
+from skeleton import DATE
 from skeleton import ROOT
-
-
 
 
 DB_PATH = ROOT / "flights.db"
@@ -59,6 +57,7 @@ class BookFlight:
                 )
                 break
             elif seat_answer in "noNO":
+                seat_answer = "(to be assigned at check-in)"
                 break
             else:
                 print("Sorry, not an answer.")
@@ -83,13 +82,13 @@ class BookFlight:
         This is combined with the MONTH constant which is the current month of
         the year. The constant can be changed anytime."""
         while True:
-            user_date = input(f"When would you like to fly? [day.{MONTH}]")
+            user_date = input(f"When would you like to fly? [day.{DATE}]")
             if user_date.isdigit():
                 user_date = int(user_date)
-                if user_date > 0:
+                if 0 < user_date <= 31:
                     break
                 else:
-                    print("Date must be greater than 0.")
+                    print("Date must be between 1 and 31.")
             else:
                 print("Please enter a valid format [day].")
         return user_date
@@ -106,12 +105,11 @@ class BookFlight:
         price = BookFlight.current_price
         print("Your ticket has been generated. Thank you for picking us!")
         ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination)
-        FLIGHTS.append(ticket.number)
         number = ticket.number
         self.generate_pdf(ticket.number, seat, name, destination, date)
         cursor.execute(
             """INSERT INTO flights ("name", "destination", "cost", "ticket") VALUES (?, ?, ?, ?)""",
-            (name, destination, price, number)
+            (name, destination.title(), price, number)
         )
         connection.commit()
        
@@ -128,7 +126,7 @@ class BookFlight:
         pdf.cell(52, 10, txt=f"Mr./Mrs. {name} ", ln=3, align="L")
         pdf.cell(150, 10, txt=f"Seat number: {seat}", ln=4, align="L")
 
-        pdf.cell(270, 10, txt=f"Departure date: {date}.{MONTH}", ln=7, align="R")
+        pdf.cell(270, 10, txt=f"Departure date: {date}.{DATE}", ln=7, align="R")
         pdf.cell(270, 10, txt=f"Gate: {GATE}", ln=8, align="R")
         pdf.cell(270, 10, txt=f"From: {airport}", ln=9, align="R")
         pdf.cell(270, 10, txt=f"To: {destination.title()}", ln=10, align="R")
@@ -153,28 +151,6 @@ class BookFlight:
         pdf.output(f"planeticket_{number}.pdf")
 
 
-
-class SeeFlights:
-
-    def __init__(self, title):
-        self.__title = title
-
-    @property
-    def title(self):
-        return self.__title
-
-    def search_flight(self, number: str):
-        """Asks users the ticket number and searches the number in the list
-        of FLIGHTS constant. The list updates with every ticket generated."""
-        if number in FLIGHTS:
-            print("Flight found!")
-        else:
-            print("There are no flights matching the criteria.")
-
-    def go_back(self):
-        pass  # should return to main menu
-
-
 class WhereToGo:
 
     def __init__(self, title):
@@ -186,6 +162,7 @@ class WhereToGo:
 
     @staticmethod
     def see_list_of_destinations():
+        """Reads the destinations available for the user from a csv file."""
         with open("destinations.csv") as fin:
             reader = csv.reader(fin.readlines())
 
@@ -194,6 +171,7 @@ class WhereToGo:
 
     @staticmethod
     def download_brochure():
+        """in progress"""
         pdf = FPDF()
 
         pdf.add_page()
@@ -236,8 +214,47 @@ class Help:
 
     @staticmethod
     def ask_help():
+        """Provides useful information to the user."""
         with open(ROOT / "travel.txt", "r") as fin:
             content = fin.readlines()
   
         for line in content:
             print(line.strip(" \n"))
+
+
+
+
+class PlaneTicket(BookFlight):
+
+    current_number = 100
+
+    def __init__(self, number, name: str, seat, date, destination):
+        self.__number = f"{random.choice(ascii_uppercase)}{PlaneTicket.current_number}"
+        self.__name = name
+        self.__seat = seat
+        self.__date = date
+        self.__destination = destination
+        PlaneTicket.current_number += 1
+        
+
+    @property
+    def name(self):
+        return self.__name    
+    
+    @property
+    def number(self):
+        return self.__number
+    
+    @property
+    def seat(self):
+        return self.__seat
+    
+    @property
+    def date(self):
+        return self.__date
+    
+    @property
+    def destination(self):
+        if self.__destination not in list(DESTINATIONS_AND_PRICES.keys()):
+            print(f"Destination not in {DESTINATIONS_AND_PRICES}.")
+        return self.__destination

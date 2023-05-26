@@ -1,17 +1,14 @@
 import sqlite3
 from pathlib import Path
-from ticket import PlaneTicket
-from cli_menu import BookFlight
+
+from development import BookFlight
+from skeleton import FROM as airport
 
 ROOT = Path(__file__).parent
 DB_PATH = ROOT / "flights.db"
 
 
-# connection = sqlite3.connect(DB_PATH)
-# cursor = connection.cursor()
-
 class Database(BookFlight):
-
     def __init__(self, path: Path):
         self.connection = sqlite3.connect(path)
         self.cursor = self.connection.cursor()
@@ -25,7 +22,5 @@ class Database(BookFlight):
             """
         )
         for row in rows:
-            print(row)
-        
-
-
+            name, destination, cost, ticket = row
+            print(f"{name}, {airport}->{destination}, €{cost}, ticket no.{ticket}")
