@@ -96,7 +96,7 @@ class ExitItem(MenuItem):
 
 
 main_menu = MenuUserChoice("Welcome to FlyHome!")
-main_menu.add_choice(FindPlane("Book a flight."))
+main_menu.add_choice(FindPlane("Book a flight"))
 main_menu.add_choice(MyFlights("See your flights"))
 main_menu.add_choice(TravelTo("Where to travel"))
 main_menu.add_choice(GiveHelp("Get help"))
