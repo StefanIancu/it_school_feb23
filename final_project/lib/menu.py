@@ -5,6 +5,9 @@ from cli_menu import BookFlight
 from cli_menu import SeeFlights
 from cli_menu import WhereToGo
 from cli_menu import Help
+from skeleton import FLIGHTS
+from ticket import PlaneTicket
+from flights_db import Database
 
 class MenuItem(ABC):
 
@@ -27,21 +30,30 @@ class FindPlane(MenuItem):
 
     def execute(self):
         print(f"{self.title:-^50}\n")
-        input("Need to exeecute <<book flight>> class methods.")
+        try:
+            demo.generate_ticket()
+        except OSError as err:
+            print(err)
+        input("Press any key to return: ")
 
 
 class MyFlights(MenuItem):
 
     def execute(self):
         print(f"{self.title:-^50}\n")
-        input("Need to call <<see flights>> class methods.")
+        try:
+            Database.read_database()
+        except OSError as err:
+            print(err)
+        input("Press any key to return: ")
+
 
 
 class TravelTo(MenuItem):
 
     def execute(self):
             print(f"{self.title:-^50}\n")
-            print("1. See destinations")
+            print("1. See destinations????")
             try:
                 WhereToGo.see_list_of_destinations()
             except OSError as err:
@@ -93,6 +105,7 @@ class ExitItem(MenuItem):
         sys.exit(0)
 
 
+demo = BookFlight("demo")
 
 
 main_menu = MenuUserChoice("Welcome to FlyHome!")
@@ -102,5 +115,7 @@ main_menu.add_choice(TravelTo("Where to travel"))
 main_menu.add_choice(GiveHelp("Get help"))
 main_menu.add_choice(ExitItem("Exit"))
 
+
 while True:
     main_menu.execute()
+

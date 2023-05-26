@@ -1,6 +1,7 @@
 import csv
 import random
 from string import ascii_uppercase
+import sqlite3
 
 from fpdf import FPDF
 from skeleton import DESTINATIONS_AND_PRICES, FLIGHTS
@@ -12,10 +13,10 @@ from skeleton import ROOT
 
 
 
-#to fix the FLIGHTS list issue / to succesfully store values in it 
 
-
-
+DB_PATH = ROOT / "flights.db"
+connection = sqlite3.connect(DB_PATH)
+cursor = connection.cursor()
 
 class BookFlight:
 
@@ -102,11 +103,17 @@ class BookFlight:
         seat = self.get_user_seat()
         luggage = self.get_user_luggage()
         date = self.get_user_date()
+        price = BookFlight.current_price
         print("Your ticket has been generated. Thank you for picking us!")
         ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination)
         FLIGHTS.append(ticket.number)
         number = ticket.number
         self.generate_pdf(ticket.number, seat, name, destination, date)
+        cursor.execute(
+            """INSERT INTO flights ("name", "destination", "cost", "ticket") VALUES (?, ?, ?, ?)""",
+            (name, destination, price, number)
+        )
+        connection.commit()
        
     def generate_pdf(self, number, seat, name, destination, date):
         """Method that takes some user information and fills a PDF file
@@ -183,7 +190,7 @@ class WhereToGo:
             reader = csv.reader(fin.readlines())
 
         for line in reader:
-            print(f"{line[0]}, €{line[1]}")
+            print(f"{line[0]} €{line[1]}")
 
     @staticmethod
     def download_brochure():
