@@ -5,6 +5,7 @@ from development import BookFlight
 from development import WhereToGo
 from development import Help
 from development import PlaneTicket
+from development import CancelFlight
 from flights_db import Database
 
 class MenuItem(ABC):
@@ -70,6 +71,18 @@ class GiveHelp(MenuItem):
         input("Press any key to return.")
 
 
+class DelFlight(MenuItem):
+
+    def execute(self):
+        print(f"{self.title:-^50}\n")
+        Database.read_database()
+        try:
+            CancelFlight.delete_reservation()
+        except OSError as err:
+            print(err)
+        input("Press any key to return.")
+
+
 class MenuUserChoice(MenuItem):
 
     def __init__(self, title) -> None:
@@ -107,7 +120,8 @@ demo = BookFlight("demo")
 
 main_menu = MenuUserChoice("Welcome to FlyHome!")
 main_menu.add_choice(FindPlane("Book a flight"))
-main_menu.add_choice(MyFlights("See your flights"))
+main_menu.add_choice(MyFlights("See your reservations"))
+main_menu.add_choice(DelFlight("Delete a reservation"))
 main_menu.add_choice(TravelTo("Where to travel"))
 main_menu.add_choice(GiveHelp("Get help"))
 main_menu.add_choice(ExitItem("Exit"))

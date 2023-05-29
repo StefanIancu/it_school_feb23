@@ -24,3 +24,20 @@ class Database(BookFlight):
         for row in rows:
             name, destination, cost, ticket = row
             print(f"{name}, {airport}->{destination}, €{cost}, ticket no.{ticket}")
+
+
+    @staticmethod
+    def add_flight():
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
+        destination = input("Destination: ")
+        flight_number = input("Flight number: ")
+        time = input("Departure time: ")
+        seats = input("Number of seats: ")
+        cursor.execute(
+            """INSERT INTO departures ("destination", "flight_number", "time", "seats ") VALUES (?, ?, ?, ?)""",
+            (destination.title(), flight_number, time, seats)
+        )
+        connection.commit()
+
+

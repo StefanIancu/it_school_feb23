@@ -98,6 +98,7 @@ class BookFlight:
         """Main method that takes all the information together and generates
         an object - ticket. It also adds the ticket's number to the FLIGHTS list."""
         name = self.get_user_name()
+        WhereToGo.see_list_of_destinations()
         destination = self.get_user_destination()
         seat = self.get_user_seat()
         luggage = self.get_user_luggage()
@@ -219,7 +220,28 @@ class Help:
             content = fin.readlines()
   
         for line in content:
-            print(line.strip(" \n"))
+            print(line.strip(" \n\r\t"))
+
+
+
+class CancelFlight:
+
+    def __init__(self, title):
+        self.__title = title
+
+    @property
+    def title(self):
+        return self.__title
+
+    @staticmethod
+    def delete_reservation():
+        """Deletes a reservation booked by the user."""
+        del_res = input("Please enter your ticket number to delete a reservation: ")
+        cursor.execute(
+            """DELETE FROM flights WHERE ticket == ?""", (del_res, )
+        )
+        connection.commit()
+        print(f"The reservation with {del_res} has been successfully deleted. ")
 
 
 

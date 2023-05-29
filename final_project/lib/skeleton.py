@@ -5,7 +5,7 @@ from pathlib import Path
 ROOT = Path(__file__).parent
 
 DESTINATIONS_AND_PRICES = {
-    "bucharest": 150,
+    "timisoara": 150,
     "budapest": 150,
     "bratislava": 165,
     "sofia": 150,
