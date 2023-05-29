@@ -7,6 +7,7 @@ from development import Help
 from development import PlaneTicket
 from development import CancelFlight
 from flights_db import Database
+from skeleton import DATE
 
 class MenuItem(ABC):
 
@@ -46,17 +47,26 @@ class MyFlights(MenuItem):
             print(err)
         input("Press any key to return: ")
 
+class AvailableFlights(MenuItem):
 
+    def execute(self):
+        print(f"{self.title:-^50}\n")
+        print(f"NOTE: Please note that the following flights are for {DATE}.")
+        try:
+            Database.read_flights()
+        except OSError as err:
+            print(err)
+        input("Press any key to return: ")
 
 class TravelTo(MenuItem):
 
     def execute(self):
-            print(f"{self.title:-^50}\n")
-            try:
-                WhereToGo.see_list_of_destinations()
-            except OSError as err:
-                print(err)
-            input("Press any key to return.")
+        print(f"{self.title:-^50}\n")
+        try:
+            WhereToGo.see_list_of_destinations()
+        except OSError as err:
+            print(err)
+        input("Press any key to return.")
 
 
 
@@ -120,6 +130,7 @@ demo = BookFlight("demo")
 
 main_menu = MenuUserChoice("Welcome to FlyHome!")
 main_menu.add_choice(FindPlane("Book a flight"))
+main_menu.add_choice(AvailableFlights("Available flights"))
 main_menu.add_choice(MyFlights("See your reservations"))
 main_menu.add_choice(DelFlight("Delete a reservation"))
 main_menu.add_choice(TravelTo("Where to travel"))

@@ -163,45 +163,14 @@ class WhereToGo:
 
     @staticmethod
     def see_list_of_destinations():
-        """Reads the destinations available for the user from a csv file."""
+        """Reads the destinations available and their prices from a csv file."""
         with open("destinations.csv") as fin:
-            reader = csv.reader(fin.readlines())
+            reader = csv.reader(fin.readlines()[1:])
 
         for line in reader:
-            print(f"{line[0]} €{line[1]}")
-
-    @staticmethod
-    def download_brochure():
-        """in progress"""
-        pdf = FPDF()
-
-        pdf.add_page()
-
-        pdf.set_font("Arial", size=15)
-
-        pdf.cell(200, 10, txt="BROCHURE", ln=1, align="C")
-
-        pdf.cell(150, 10, txt=f"reader", ln=2, align="R")
-
-        # for k, v in DESTINATIONS_AND_PRICES.items():
-        #     pdf.cell(150, 10, txt=f"To {k.title}, price ${v}",
-        #              ln=2.)
-
-        # pdf.cell(200, 10, txt = f"Mr./Mrs. {ticket.name}",
-        #  ln = 3, align= "L")
-        # pdf.cell(150, 10, txt=f"Seat number: {ticket.seat}",
-        #  ln = 4, align="L")
-
-        # pdf.cell(150, 10, txt=f"Departure date: {ticket.date}",
-        #  ln = 5, align="R")
-        # pdf.cell(150, 10, txt=f"Destination: {ticket.destination}",
-        #  ln = 6, align="R")
-
-        pdf.cell(
-            100, 10, txt="Thank you for choosing to fly with us!", ln=10, align="C"
-        )
-
-        pdf.output("planeticket.pdf")
+            # print(f"{line[0]} €{line[1]}")
+            # print(line[0].split(";"))
+            print(f"""{line[0].replace(";", " from €")}""")
 
 
 class Help:
@@ -280,3 +249,6 @@ class PlaneTicket(BookFlight):
         if self.__destination not in list(DESTINATIONS_AND_PRICES.keys()):
             print(f"Destination not in {DESTINATIONS_AND_PRICES}.")
         return self.__destination
+    
+
+WhereToGo.see_list_of_destinations()
