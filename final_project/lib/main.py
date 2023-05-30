@@ -86,10 +86,13 @@ class DelFlight(MenuItem):
     def execute(self):
         print(f"{self.title:-^50}\n")
         Database.read_database()
-        try:
-            CancelFlight.delete_reservation()
-        except OSError as err:
-            print(err)
+        if Database.get_ticket_existence():
+            try:
+                CancelFlight.delete_reservation()
+            except OSError as err:
+                print(err)
+        else:
+            print("The ticket doesn't exist.")
         input("Press any key to return.")
 
 

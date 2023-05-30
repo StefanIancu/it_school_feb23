@@ -1,0 +1,30 @@
+Intro session																																																		
+Pregatirea mediului de dezvoltare																																																		
+Introducerea in progrmarea cu Python 																																																		
+Controlul fluxului de executie - if, elif, else																																																		
+Controlul fluxului de executie - while, for, break, continue, pass																																																		
+Functii - 1																																																		
+Functii - 2																																																		
+Introducere in VCS																																																		
+Colectii de date - liste																																																		
+Colectii de date - set - tuple																																																		
+Colectii de date - dictionare																																																		
+Module - instalare cu pip si importare																																																		
+OOP - principii si definire clase																																																		
+OOP - practica - documetare si metode magice																																																		
+OOP - Mostenire - polomirfism																																																		
+OOP - atribute si metode statice																																																		
+Lucrul cu siruri de caractere - formatare si metode																																																		
+Diagnosticare si monitorizare - debuging - exceptions																																																		
+Diagnosticare si monitorizare - logging																																																		
+Lucrul cu fisiere - citirie scriere text si binar - seek - context manager																																																		
+Lucru cu fisirere - parsare formate cunoscute - JSON - XML - PDF																																																		
+Lucrul cu baze de date - SQLite - intro - DB explore - instructiuni																																																		
+Lucrul cu baze de date - sqlite integrare cu Python																																																		
+Lucrul cu date tabelare - csv																																																		
+Lucrul cu date tabelare - xls																																																		
+Lucru cu API externe - modulul requests																																																		
+REST API - intro - FastApi presentation - alternatives																																																		
+REST API - intro - FastApi practice																																																		
+Lucrul cu servicii online - gsheets																																																		
+Lucrul cu servicii online - send email																																																		

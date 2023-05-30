@@ -10,6 +10,7 @@ ROOT = Path(__file__).parent
 DB_PATH = ROOT / "flights.db"
 
 
+
 class Database(BookFlight):
     def __init__(self, path: Path):
         self.connection = sqlite3.connect(path)
@@ -69,3 +70,22 @@ class Database(BookFlight):
         for row in rows:
             dest, flight_nr, dep_time, seats = row
             print(f"{airport}-> {dest}, flight number {flight_nr}, departure at {dep_time}, available seats {seats}.")
+
+
+    @staticmethod
+    def get_ticket_existence():
+        """Method that returns bool if a specific ticket is in flights database
+        in order to help the delete_reservation method to be accurate."""
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
+        ticket_exist = input("Enter ticket number: ")
+        rows = cursor.execute(
+            """SELECT EXISTS(SELECT 1 FROM flights WHERE ticket = ?)""", (ticket_exist.upper(), )
+        )
+        
+        for row in rows:
+            return row[0] == 1
+        
+            
+
+

@@ -12,6 +12,7 @@ from skeleton import DATE
 from skeleton import ROOT
 
 
+
 DB_PATH = ROOT / "flights.db"
 connection = sqlite3.connect(DB_PATH)
 cursor = connection.cursor()
@@ -35,7 +36,7 @@ class BookFlight:
     def get_user_destination(self):
         """Takes the user destination and matches the starting price of the
         ticket with the specific destination price from DESTINATIONS_AND_PRICES
-        constant. This can be changed anytime."""
+        dictionary. This can be changed anytime."""
         while True:
             destination_answer = input(f"Welcome, user. Where would you like to go?")
             if destination_answer.lower() in list(DESTINATIONS_AND_PRICES.keys()):
@@ -79,8 +80,8 @@ class BookFlight:
 
     def get_user_date(self):
         """Asks the user the date (day) when they would like to fly.
-        This is combined with the MONTH constant which is the current month of
-        the year. The constant can be changed anytime."""
+        This is combined with the DATE constant which is the current month of
+        the year - based on real date&time."""
         while True:
             user_date = input(f"When would you like to fly? [day.{DATE}]")
             if user_date.isdigit():
@@ -96,7 +97,8 @@ class BookFlight:
 
     def generate_ticket(self):
         """Main method that takes all the information together and generates
-        an object - ticket. It also adds the ticket's number to the FLIGHTS list."""
+        an object - ticket. It also adds the ticket's number to the "flights"
+        database."""
         name = self.get_user_name()
         WhereToGo.see_list_of_destinations()
         destination = self.get_user_destination()
@@ -205,12 +207,12 @@ class CancelFlight:
     @staticmethod
     def delete_reservation():
         """Deletes a reservation booked by the user."""
-        del_res = input("Please enter your ticket number to delete a reservation: ")
+        del_res = input("Please re-enter your ticket number for confirmation: ")
         cursor.execute(
-            """DELETE FROM flights WHERE ticket == ?""", (del_res, )
+            """DELETE FROM flights WHERE ticket == ?""", (del_res.upper(), )
         )
         connection.commit()
-        print(f"The reservation with {del_res} has been successfully deleted. ")
+        print(f"The reservation with {del_res.upper()} has been successfully deleted. ")
 
 
 
@@ -250,5 +252,3 @@ class PlaneTicket(BookFlight):
             print(f"Destination not in {DESTINATIONS_AND_PRICES}.")
         return self.__destination
     
-
-WhereToGo.see_list_of_destinations()
