@@ -40,7 +40,7 @@ class BookFlight:
         while True:
             destination_answer = input(f"Welcome, user. Where would you like to go?")
             if destination_answer.lower() in list(DESTINATIONS_AND_PRICES.keys()):
-                BookFlight.current_price += DESTINATIONS_AND_PRICES[destination_answer.lower()]
+                PlaneTicket.current_price += DESTINATIONS_AND_PRICES[destination_answer.lower()]
                 break
             else:
                 print("We are sorry. We currently don't fly there!")
@@ -52,9 +52,9 @@ class BookFlight:
         while True:
             seat_answer = input("Would you like to reserve a seat? [y/n]")
             if seat_answer in "yesYES":
-                BookFlight.current_price += 50
+                PlaneTicket.current_price += 50
                 seat_answer = (
-                    f"{random.choice(range(126))}{random.choice(ascii_uppercase)}"
+                    f"{random.choice(range(75))}{random.choice(ascii_uppercase)}"
                 )
                 break
             elif seat_answer in "noNO":
@@ -70,7 +70,7 @@ class BookFlight:
         while True:
             luggage_answer = input("Would you like to book a luggage? [y/n]")
             if luggage_answer in "yesYES":
-                BookFlight.current_price += 50
+                PlaneTicket.current_price += 50
                 break
             elif luggage_answer in "noNO":
                 break
@@ -99,13 +99,14 @@ class BookFlight:
         """Main method that takes all the information together and generates
         an object - ticket. It also adds the ticket's number to the "flights"
         database."""
+        PlaneTicket.current_price = 0
         name = self.get_user_name()
         WhereToGo.see_list_of_destinations()
         destination = self.get_user_destination()
         seat = self.get_user_seat()
         luggage = self.get_user_luggage()
         date = self.get_user_date()
-        price = BookFlight.current_price
+        price = PlaneTicket.current_price
         print("Your ticket has been generated. Thank you for picking us!")
         ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination)
         number = ticket.number
@@ -228,7 +229,7 @@ class PlaneTicket(BookFlight):
         self.__date = date
         self.__destination = destination
         PlaneTicket.current_number += 1
-        
+        self.current_price = 0
 
     @property
     def name(self):
