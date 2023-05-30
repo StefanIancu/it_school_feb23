@@ -3,6 +3,7 @@ import random
 from string import ascii_uppercase
 import sqlite3
 from datetime import date
+from pathlib import Path
 
 from fpdf import FPDF
 from skeleton import DESTINATIONS_AND_PRICES
@@ -31,6 +32,7 @@ class BookFlight:
     def get_user_name(self):
         """Takes the user's name."""
         name_answer = input("What is your name?")
+        print(f"Welcome, {name_answer}!")
         return name_answer.title()
 
     def get_user_destination(self):
@@ -38,13 +40,15 @@ class BookFlight:
         ticket with the specific destination price from DESTINATIONS_AND_PRICES
         dictionary. This can be changed anytime."""
         while True:
-            destination_answer = input(f"Welcome, user. Where would you like to go?")
+            destination_answer = input(f"Where would you like to go?")
             if destination_answer.lower() in list(DESTINATIONS_AND_PRICES.keys()):
                 PlaneTicket.current_price += DESTINATIONS_AND_PRICES[destination_answer.lower()]
+                Database.read_flights(destination_answer)
                 break
             else:
                 print("We are sorry. We currently don't fly there!")
         return destination_answer
+
 
     def get_user_seat(self):
         """Asks the user if they would like to book a seat or not. If the user
@@ -253,3 +257,82 @@ class PlaneTicket(BookFlight):
             print(f"Destination not in {DESTINATIONS_AND_PRICES}.")
         return self.__destination
     
+
+class Database(BookFlight):
+    def __init__(self, path: Path):
+        self.connection = sqlite3.connect(path)
+        self.cursor = self.connection.cursor()
+
+    @staticmethod
+    def read_database():
+        """Method that shows the booked flights."""
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
+        rows = cursor.execute(
+            """SELECT "name", "destination", "cost", "ticket" FROM flights
+            """
+        )
+        for row in rows:
+            name, destination, cost, ticket = row
+            print(f"{name}, {airport}->{destination}, €{cost}, ticket no.{ticket}")
+
+
+    @staticmethod
+    def add_flight():
+        """Method that adds a flight to the "flights" database containing 
+        destination, flight number, departure time and number of seats left."""
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
+        destination = input("Destination: ")
+        flight_number = input("Flight number: ")
+        time = input("Departure time: ")
+        seats = input("Number of seats: ")
+        cursor.execute(
+            """INSERT INTO departures ("destination", "flight_number", "time", "seats ") VALUES (?, ?, ?, ?)""",
+            (destination.title(), flight_number, time, seats)
+        )
+        connection.commit()
+
+
+    @staticmethod
+    def read_flights(destination):
+        """Method that reads from a database of flights a specific destination
+        which the user chooses."""
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
+        while True:
+            # destination = input("What destination interests you? ")
+            if destination.lower() in DESTINATIONS_AND_PRICES.keys():
+                rows = cursor.execute(
+                """SELECT * FROM departures WHERE "destination" is ?""",
+                    (destination.title(), )
+                )
+                break
+            else:
+                print("We currently don't fly there. Please see our list of destinations.")
+                WhereToGo.see_list_of_destinations()
+
+
+        print(f"Upcoming flights for {destination.title()}:")
+        for row in rows:
+            dest, flight_nr, dep_time, seats = row
+            print(f"{airport}-> {dest}, flight number {flight_nr}, departure at {dep_time}, available seats {seats}.")
+
+
+    @staticmethod
+    def get_ticket_existence():
+        """Method that returns bool if a specific ticket is in flights database
+        in order to help the delete_reservation method to be accurate."""
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
+        ticket_exist = input("Enter ticket number: ")
+        rows = cursor.execute(
+            """SELECT EXISTS(SELECT 1 FROM flights WHERE ticket = ?)""", (ticket_exist.upper(), )
+        )
+        
+        for row in rows:
+            return row[0] == 1
+        
+            
+
+

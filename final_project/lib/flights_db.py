@@ -55,7 +55,7 @@ class Database(BookFlight):
         cursor = connection.cursor()
         while True:
             destination = input("What destination interests you? ")
-            if destination in DESTINATIONS_AND_PRICES.keys():
+            if destination.lower() in DESTINATIONS_AND_PRICES.keys():
                 rows = cursor.execute(
                 """SELECT * FROM departures WHERE "destination" is ?""",
                     (destination.title(), )
