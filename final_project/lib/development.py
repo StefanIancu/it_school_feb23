@@ -32,7 +32,7 @@ class BookFlight:
     def get_user_name(self):
         """Takes the user's name."""
         name_answer = input("What is your name?")
-        print(f"Welcome, {name_answer}!")
+        print(f"Welcome, {name_answer.title()}!")
         return name_answer.title()
 
     def get_user_destination(self):
@@ -40,7 +40,7 @@ class BookFlight:
         ticket with the specific destination price from DESTINATIONS_AND_PRICES
         dictionary. This can be changed anytime."""
         while True:
-            destination_answer = input(f"Where would you like to go?")
+            destination_answer = input(f"Where would you like to go? ")
             if destination_answer.lower() in list(DESTINATIONS_AND_PRICES.keys()):
                 PlaneTicket.current_price += DESTINATIONS_AND_PRICES[destination_answer.lower()]
                 Database.read_flights(destination_answer)
@@ -49,6 +49,15 @@ class BookFlight:
                 print("We are sorry. We currently don't fly there!")
         return destination_answer
 
+
+    def pick_a_flight(self):
+        while True:
+            flight_answer = input("Please choose a flight by entering its number: ")
+            if Database.read_numbers(flight_answer.upper()):
+                break
+            else:
+                print("Please enter the correct flight number.")
+        return flight_answer
 
     def get_user_seat(self):
         """Asks the user if they would like to book a seat or not. If the user
@@ -107,21 +116,22 @@ class BookFlight:
         name = self.get_user_name()
         WhereToGo.see_list_of_destinations()
         destination = self.get_user_destination()
+        flight = self.pick_a_flight()
         seat = self.get_user_seat()
         luggage = self.get_user_luggage()
         date = self.get_user_date()
         price = PlaneTicket.current_price
         print("Your ticket has been generated. Thank you for picking us!")
-        ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination)
+        ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination, flight)
         number = ticket.number
-        self.generate_pdf(ticket.number, seat, name, destination, date)
+        self.generate_pdf(ticket.number, seat, name, destination, date, flight)
         cursor.execute(
             """INSERT INTO flights ("name", "destination", "cost", "ticket") VALUES (?, ?, ?, ?)""",
             (name, destination.title(), price, number)
         )
         connection.commit()
        
-    def generate_pdf(self, number, seat, name, destination, date):
+    def generate_pdf(self, number, seat, name, destination, date, flight_number):
         """Method that takes some user information and fills a PDF file
         with the specific information."""
         pdf = FPDF()
@@ -133,6 +143,8 @@ class BookFlight:
 
         pdf.cell(52, 10, txt=f"Mr./Mrs. {name} ", ln=3, align="L")
         pdf.cell(150, 10, txt=f"Seat number: {seat}", ln=4, align="L")
+        pdf.cell(150, 10, txt=f"Flight number: {flight_number.upper()}", ln=4, align="L")
+
 
         pdf.cell(270, 10, txt=f"Departure date: {date}.{DATE}", ln=7, align="R")
         pdf.cell(270, 10, txt=f"Gate: {GATE}", ln=8, align="R")
@@ -212,12 +224,15 @@ class CancelFlight:
     @staticmethod
     def delete_reservation():
         """Deletes a reservation booked by the user."""
-        del_res = input("Please re-enter your ticket number for confirmation: ")
-        cursor.execute(
-            """DELETE FROM flights WHERE ticket == ?""", (del_res.upper(), )
-        )
-        connection.commit()
-        print(f"The reservation with {del_res.upper()} has been successfully deleted. ")
+        del_res = input("Please enter your ticket number to delete the reservation: ")
+        if Database.get_ticket_existence(del_res.upper()):
+            cursor.execute(
+                """DELETE FROM flights WHERE ticket == ?""", (del_res.upper(), )
+            )
+            connection.commit()
+            print(f"The reservation with {del_res.upper()} has been successfully deleted. ")
+        else:
+            print(f"Ticket {del_res.upper()} doesn't exist.")
 
 
 
@@ -226,12 +241,13 @@ class PlaneTicket(BookFlight):
 
     current_number = 100
 
-    def __init__(self, number, name: str, seat, date, destination):
+    def __init__(self, number, name: str, seat, date, destination, flight_number):
         self.__number = f"{random.choice(ascii_uppercase)}{PlaneTicket.current_number}"
         self.__name = name
         self.__seat = seat
         self.__date = date
         self.__destination = destination
+        self.__flight_number = flight_number
         PlaneTicket.current_number += 1
         self.current_price = 0
 
@@ -251,6 +267,10 @@ class PlaneTicket(BookFlight):
     def date(self):
         return self.__date
     
+    @property
+    def flight_number(self):
+        return self.__flight_number
+
     @property
     def destination(self):
         if self.__destination not in list(DESTINATIONS_AND_PRICES.keys()):
@@ -318,21 +338,52 @@ class Database(BookFlight):
             dest, flight_nr, dep_time, seats = row
             print(f"{airport}-> {dest}, flight number {flight_nr}, departure at {dep_time}, available seats {seats}.")
 
-
     @staticmethod
-    def get_ticket_existence():
-        """Method that returns bool if a specific ticket is in flights database
-        in order to help the delete_reservation method to be accurate."""
+    def read_flights_for_available():
+        """Method that reads from a database of flights a specific destination
+        which the user chooses."""
         connection = sqlite3.connect(DB_PATH)
         cursor = connection.cursor()
-        ticket_exist = input("Enter ticket number: ")
+        while True:
+            destination = input("What destination interests you? ")
+            if destination.lower() in DESTINATIONS_AND_PRICES.keys():
+                rows = cursor.execute(
+                """SELECT * FROM departures WHERE "destination" is ?""",
+                    (destination.title(), )
+                )
+                break
+            else:
+                print("We currently don't fly there. Please see our list of destinations.")
+                WhereToGo.see_list_of_destinations()
+
+
+        print(f"Upcoming flights for {destination.title()}:")
+        for row in rows:
+            dest, flight_nr, dep_time, seats = row
+            print(f"{airport}-> {dest}, flight number {flight_nr}, departure at {dep_time}, available seats {seats}.")
+
+    @staticmethod
+    def read_numbers(flight_number):
+        """Method that reads from a database of flights certain flights numbers."""
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
         rows = cursor.execute(
-            """SELECT EXISTS(SELECT 1 FROM flights WHERE ticket = ?)""", (ticket_exist.upper(), )
+            """SELECT EXISTS(SELECT 1 FROM departures WHERE flight_number = ?)""", (flight_number.upper(), )
         )
         
         for row in rows:
             return row[0] == 1
+
+
+    @staticmethod
+    def get_ticket_existence(ticket):
+        """Method that returns bool if a specific ticket is in flights database
+        in order to help the delete_reservation method to be accurate."""
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
+        rows = cursor.execute(
+            """SELECT EXISTS(SELECT 1 FROM flights WHERE ticket = ?)""", (ticket.upper(), )
+        )
         
-            
-
-
+        for row in rows:
+            return row[0] == 1

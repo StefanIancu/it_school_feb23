@@ -6,7 +6,7 @@ from development import WhereToGo
 from development import Help
 from development import PlaneTicket
 from development import CancelFlight
-from flights_db import Database
+from development import Database
 from skeleton import DATE
 
 class MenuItem(ABC):
@@ -53,7 +53,7 @@ class AvailableFlights(MenuItem):
         print(f"{self.title:-^50}\n")
         print(f"NOTE: Please note that the following flights are for {DATE}.")
         try:
-            Database.read_flights()
+            Database.read_flights_for_available()
         except OSError as err:
             print(err)
         input("Press any key to return: ")
@@ -86,13 +86,10 @@ class DelFlight(MenuItem):
     def execute(self):
         print(f"{self.title:-^50}\n")
         Database.read_database()
-        if Database.get_ticket_existence():
-            try:
-                CancelFlight.delete_reservation()
-            except OSError as err:
-                print(err)
-        else:
-            print("The ticket doesn't exist.")
+        try:
+            CancelFlight.delete_reservation()
+        except OSError as err:
+            print(err)
         input("Press any key to return.")
 
 

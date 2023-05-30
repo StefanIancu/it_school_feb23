@@ -87,5 +87,3 @@ class Database(BookFlight):
             return row[0] == 1
         
             
-
-
