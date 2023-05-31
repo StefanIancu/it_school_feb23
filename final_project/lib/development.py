@@ -1,6 +1,7 @@
 import csv
 import random
 from string import ascii_uppercase
+from string import punctuation
 import sqlite3
 from datetime import date
 from pathlib import Path
@@ -31,7 +32,16 @@ class BookFlight:
 
     def get_user_name(self):
         """Takes the user's name."""
-        name_answer = input("What is your name?")
+        while True:
+            name_answer = input("What is your name?")
+            if any(i.isdigit() for i in name_answer):
+                print("Please enter the correct name without numbers.")
+            elif any(i for i in name_answer if i in punctuation):
+                print("Please don't use characters.")
+            elif name_answer is "":
+                print("Field required.")
+            else:
+                break
         print(f"Welcome, {name_answer.title()}!")
         return name_answer.title()
 
