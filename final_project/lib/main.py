@@ -52,6 +52,7 @@ class AvailableFlights(MenuItem):
     def execute(self):
         print(f"{self.title:-^50}\n")
         print(f"NOTE: Please note that the following flights are for {DATE}.")
+        WhereToGo.see_list_of_destinations()
         try:
             Database.read_flights_for_available()
         except OSError as err:

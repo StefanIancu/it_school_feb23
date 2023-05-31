@@ -234,15 +234,17 @@ class CancelFlight:
     @staticmethod
     def delete_reservation():
         """Deletes a reservation booked by the user."""
-        del_res = input("Please enter your ticket number to delete the reservation: ")
-        if Database.get_ticket_existence(del_res.upper()):
-            cursor.execute(
-                """DELETE FROM flights WHERE ticket == ?""", (del_res.upper(), )
-            )
-            connection.commit()
-            print(f"The reservation with {del_res.upper()} has been successfully deleted. ")
-        else:
-            print(f"Ticket {del_res.upper()} doesn't exist.")
+        while True:
+            del_res = input("Please enter your ticket number to delete the reservation: ")
+            if Database.get_ticket_existence(del_res.upper()):
+                cursor.execute(
+                    """DELETE FROM flights WHERE ticket == ?""", (del_res.upper(), )
+                )
+                connection.commit()
+                print(f"The reservation with {del_res.upper()} has been successfully deleted. ")
+                break
+            else:
+                print(f"Ticket {del_res.upper()} doesn't exist.")
 
 
 
