@@ -132,6 +132,7 @@ class BookFlight:
         date = self.get_user_date()
         price = PlaneTicket.current_price
         print("Your ticket has been generated. Thank you for picking us!")
+        Database.drop_seats(flight.upper())
         ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination, flight)
         number = ticket.number
         self.generate_pdf(ticket.number, seat, name, destination, date, flight)
@@ -413,8 +414,6 @@ class Database(BookFlight):
             WHERE "flight_number" == ? """, (flight_number, )
         )
         connection.commit()
-        for row in rows:
-            print(row[0])
 
     # @staticmethod
     # def check_seats(flight_number):
