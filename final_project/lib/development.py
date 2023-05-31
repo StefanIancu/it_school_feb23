@@ -38,7 +38,7 @@ class BookFlight:
                 print("Please enter the correct name without numbers.")
             elif any(i for i in name_answer if i in punctuation):
                 print("Please don't use characters.")
-            elif name_answer is "":
+            elif name_answer == "":
                 print("Field required.")
             else:
                 break
@@ -291,6 +291,7 @@ class PlaneTicket(BookFlight):
     
 
 class Database(BookFlight):
+
     def __init__(self, path: Path):
         self.connection = sqlite3.connect(path)
         self.cursor = self.connection.cursor()
@@ -329,7 +330,8 @@ class Database(BookFlight):
     @staticmethod
     def read_flights(destination):
         """Method that reads from a database of flights a specific destination
-        which the user chooses."""
+        which the user chooses - method for "BOOK A FLIGHT OPTION" where it 
+        needs an argument - user input."""
         connection = sqlite3.connect(DB_PATH)
         cursor = connection.cursor()
         while True:
@@ -353,7 +355,8 @@ class Database(BookFlight):
     @staticmethod
     def read_flights_for_available():
         """Method that reads from a database of flights a specific destination
-        which the user chooses."""
+        which the user chooses - method for "AVAILABLE FLIGHTS" option where it 
+        is static, doesn't need any arguments."""
         connection = sqlite3.connect(DB_PATH)
         cursor = connection.cursor()
         while True:
@@ -399,3 +402,27 @@ class Database(BookFlight):
         
         for row in rows:
             return row[0] == 1
+    
+    @staticmethod
+    def drop_seats(flight_number):
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
+        rows = cursor.execute(
+            """UPDATE departures 
+            SET "seats " = "seats " - 1 
+            WHERE "flight_number" == ? """, (flight_number, )
+        )
+        connection.commit()
+        for row in rows:
+            print(row[0])
+
+    # @staticmethod
+    # def check_seats(flight_number):
+    #     connection = sqlite3.connect(DB_PATH)
+    #     cursor = connection.cursor()
+    #     rows = cursor.execute(
+    #         """SELECT "seats " from departures WHERE "flight_number" == ?""", (flight_number, )
+    #     )
+    #     for row in rows:
+    #         return row[0]
+        
