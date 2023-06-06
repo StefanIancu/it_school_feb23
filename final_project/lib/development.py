@@ -137,8 +137,8 @@ class BookFlight:
         number = ticket.number
         self.generate_pdf(ticket.number, seat, name, destination, date, flight)
         cursor.execute(
-            """INSERT INTO flights ("name", "destination", "cost", "ticket") VALUES (?, ?, ?, ?)""",
-            (name, destination.title(), price, number)
+            """INSERT INTO flights ("name", "destination", "cost", "ticket", "flight_nr") VALUES (?, ?, ?, ?, ?)""",
+            (name, destination.title(), price, number, flight.upper())
         )
         connection.commit()
        
@@ -238,6 +238,7 @@ class CancelFlight:
         while True:
             del_res = input("Please enter your ticket number to delete the reservation: ")
             if Database.get_ticket_existence(del_res.upper()):
+                Database.undo_seats(del_res.upper())
                 cursor.execute(
                     """DELETE FROM flights WHERE ticket == ?""", (del_res.upper(), )
                 )
@@ -303,12 +304,12 @@ class Database(BookFlight):
         connection = sqlite3.connect(DB_PATH)
         cursor = connection.cursor()
         rows = cursor.execute(
-            """SELECT "name", "destination", "cost", "ticket" FROM flights
+            """SELECT "name", "destination", "cost", "ticket", "flight_nr" FROM flights
             """
         )
         for row in rows:
-            name, destination, cost, ticket = row
-            print(f"{name}, {airport}->{destination}, €{cost}, ticket no.{ticket}")
+            name, destination, cost, ticket, flight = row
+            print(f"{name}, {airport}->{destination}, €{cost}, ticket no.{ticket}, flight number {flight}.")
 
 
     @staticmethod
@@ -415,13 +416,19 @@ class Database(BookFlight):
         )
         connection.commit()
 
-    # @staticmethod
-    # def check_seats(flight_number):
-    #     connection = sqlite3.connect(DB_PATH)
-    #     cursor = connection.cursor()
-    #     rows = cursor.execute(
-    #         """SELECT "seats " from departures WHERE "flight_number" == ?""", (flight_number, )
-    #     )
-    #     for row in rows:
-    #         return row[0]
-        
+    @staticmethod
+    def undo_seats(ticket_number):
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
+        rows = cursor.execute(
+            """UPDATE departures
+            SET "seats " = "seats " + 1 
+            WHERE flight_number IN (
+            SELECT flight_nr
+            FROM flights
+            WHERE ticket == ?
+            );
+            """, (ticket_number, )
+        )
+        connection.commit()
+

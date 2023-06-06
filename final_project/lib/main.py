@@ -138,7 +138,5 @@ main_menu.add_choice(TravelTo("Where to travel"))
 main_menu.add_choice(GiveHelp("Get help"))
 main_menu.add_choice(ExitItem("Exit"))
 
-
 while True:
     main_menu.execute()
-
