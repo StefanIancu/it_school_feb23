@@ -74,11 +74,14 @@ class BookFlight:
         replies positively, the current price will increase."""
         while True:
             seat_answer = input("Would you like to reserve a seat? [y/n]")
-            if seat_answer in "yesYES":
+            if seat_answer == "":
+                print("Field required.")
+            elif seat_answer in "yesYES":
                 PlaneTicket.current_price += 50
                 seat_answer = (
                     f"{random.choice(range(75))}{random.choice(ascii_uppercase)}"
                 )
+                print("Seat reserved!")
                 break
             elif seat_answer in "noNO":
                 seat_answer = "(to be assigned at check-in)"
@@ -92,8 +95,11 @@ class BookFlight:
         replies positively, the current price will increase."""
         while True:
             luggage_answer = input("Would you like to book a luggage? [y/n]")
-            if luggage_answer in "yesYES":
+            if luggage_answer == "":
+                print("Field required.")
+            elif luggage_answer in "yesYES":
                 PlaneTicket.current_price += 50
+                print("Luggage registered!")
                 break
             elif luggage_answer in "noNO":
                 break
