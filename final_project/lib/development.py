@@ -224,7 +224,10 @@ class Help:
             content = fin.readlines()
   
         for line in content:
-            print(line.strip(" \n\r\t"))
+            if line.isspace():
+                continue
+            else:
+                print(line.strip(" \n\r\t"))
 
 
 
