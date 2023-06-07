@@ -1,2 +1,0 @@
-from skeleton import DESTINATIONS_AND_PRICES
-from ticket import PlaneTicket

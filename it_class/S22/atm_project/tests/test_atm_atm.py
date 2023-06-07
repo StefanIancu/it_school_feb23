@@ -15,7 +15,3 @@ class TestConstructor(TestCase):
 
         for k in ing.__vault.keys():
             self.assertIn(k, [1, 5, 10, 20, 50, 100, 200, 500])
-
-
-    def test_fill(self):
-        
