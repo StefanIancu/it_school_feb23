@@ -136,19 +136,20 @@ class BookFlight:
         seat = self.get_user_seat()
         luggage = self.get_user_luggage()
         date = self.get_user_date()
+        departure_time = Database.read_dep_time(flight.upper())
         price = PlaneTicket.current_price
         print("Your ticket has been generated. Thank you for picking us!")
         Database.drop_seats(flight.upper())
         ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination, flight)
         number = ticket.number
-        self.generate_pdf(ticket.number, seat, name, destination, date, flight)
+        self.generate_pdf(ticket.number, seat, name, destination, date, flight, departure_time)
         cursor.execute(
             """INSERT INTO flights ("name", "destination", "cost", "ticket", "flight_nr") VALUES (?, ?, ?, ?, ?)""",
             (name, destination.title(), price, number, flight.upper())
         )
         connection.commit()
        
-    def generate_pdf(self, number, seat, name, destination, date, flight_number):
+    def generate_pdf(self, number, seat, name, destination, date, flight_number, departure_time):
         """Method that takes some user information and fills a PDF file
         with the specific information."""
         pdf = FPDF()
@@ -162,12 +163,12 @@ class BookFlight:
         pdf.cell(150, 10, txt=f"Seat number: {seat}", ln=4, align="L")
         pdf.cell(150, 10, txt=f"Flight number: {flight_number.upper()}", ln=4, align="L")
 
-
+        pdf.cell(270, 10, txt=f"Departure time: {departure_time}", ln=7, align="R")
         pdf.cell(270, 10, txt=f"Departure date: {date}.{DATE}", ln=7, align="R")
         pdf.cell(270, 10, txt=f"Gate: {GATE}", ln=8, align="R")
         pdf.cell(270, 10, txt=f"From: {airport}", ln=9, align="R")
         pdf.cell(270, 10, txt=f"To: {destination.title()}", ln=10, align="R")
-        pdf.image("airplane.jpeg", w=10, h=10, x=235, y=100)
+        pdf.image("airplane.jpeg", w=10, h=10, x=235, y=120)
 
         pdf.cell(100, 10, txt="Gate closes 15 minutes before departure.",
                  ln = 11, align="L") 
@@ -204,8 +205,6 @@ class WhereToGo:
             reader = csv.reader(fin.readlines()[1:])
 
         for line in reader:
-            # print(f"{line[0]} €{line[1]}")
-            # print(line[0].split(";"))
             print(f"""{line[0].replace(";", " from €")}""")
 
 
@@ -321,7 +320,8 @@ class Database(BookFlight):
     @staticmethod
     def add_flight():
         """Method that adds a flight to the "flights" database containing 
-        destination, flight number, departure time and number of seats left."""
+        destination, flight number, departure time and number of seats left
+        - FOR STAFF ONLY."""
         connection = sqlite3.connect(DB_PATH)
         cursor = connection.cursor()
         destination = input("Destination: ")
@@ -343,7 +343,6 @@ class Database(BookFlight):
         connection = sqlite3.connect(DB_PATH)
         cursor = connection.cursor()
         while True:
-            # destination = input("What destination interests you? ")
             if destination.lower() in DESTINATIONS_AND_PRICES.keys():
                 rows = cursor.execute(
                 """SELECT * FROM departures WHERE "destination" is ?""",
@@ -413,6 +412,8 @@ class Database(BookFlight):
     
     @staticmethod
     def drop_seats(flight_number):
+        """"Method that substitutes one seat for each booking in order to keep 
+        the "available seats" value updated."""
         connection = sqlite3.connect(DB_PATH)
         cursor = connection.cursor()
         rows = cursor.execute(
@@ -424,6 +425,8 @@ class Database(BookFlight):
 
     @staticmethod
     def undo_seats(ticket_number):
+        """Method that adds one seat for each deleted booking in order to keep 
+        the "available seats" value updated."""
         connection = sqlite3.connect(DB_PATH)
         cursor = connection.cursor()
         rows = cursor.execute(
@@ -438,3 +441,17 @@ class Database(BookFlight):
         )
         connection.commit()
 
+    @staticmethod
+    def read_dep_time(flight_number):
+        """Method that returns the departure time of a specific flight."""
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
+        rows = cursor.execute(
+            """SELECT time FROM departures WHERE flight_number == ? 
+            """, (flight_number, )
+        )
+        for row in rows:
+            return row[0] 
+
+
+    
