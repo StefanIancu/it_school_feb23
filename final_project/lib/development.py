@@ -7,17 +7,32 @@ from datetime import date
 from pathlib import Path
 
 from fpdf import FPDF
-from skeleton import DESTINATIONS_AND_PRICES
-from skeleton import FROM as airport
-from skeleton import GATE
-from skeleton import DATE
-from skeleton import ROOT
 
-
+ROOT = Path(__file__).parent
 
 DB_PATH = ROOT / "flights.db"
 connection = sqlite3.connect(DB_PATH)
 cursor = connection.cursor()
+
+DESTINATIONS_AND_PRICES = {
+    "timisoara": 150,
+    "budapest": 150,
+    "bratislava": 165,
+    "sofia": 150,
+    "prague": 200,
+    "berlin": 250,
+    "rome": 400,
+    "paris": 350,
+    "basel": 550,
+    "tokyo": 999,
+}
+
+
+now = date.today()
+FROM = "Bucharest OTP"
+DATE = f"{now.month}.{now.year}"
+
+GATE = random.choice(range(30))
 
 class BookFlight:
 
@@ -166,7 +181,7 @@ class BookFlight:
         pdf.cell(270, 10, txt=f"Departure time: {departure_time}", ln=7, align="R")
         pdf.cell(270, 10, txt=f"Departure date: {date}.{DATE}", ln=7, align="R")
         pdf.cell(270, 10, txt=f"Gate: {GATE}", ln=8, align="R")
-        pdf.cell(270, 10, txt=f"From: {airport}", ln=9, align="R")
+        pdf.cell(270, 10, txt=f"From: {FROM}", ln=9, align="R")
         pdf.cell(270, 10, txt=f"To: {destination.title()}", ln=10, align="R")
         pdf.image("airplane.jpeg", w=10, h=10, x=235, y=120)
 
@@ -317,7 +332,7 @@ class Database(BookFlight):
         )
         for row in rows:
             name, destination, cost, ticket, flight = row
-            print(f"{name}, {airport}->{destination}, €{cost}, ticket no.{ticket}, flight number {flight}.")
+            print(f"{name}, {FROM}->{destination}, €{cost}, ticket no.{ticket}, flight number {flight}.")
 
 
     @staticmethod
@@ -360,7 +375,7 @@ class Database(BookFlight):
         print(f"Upcoming flights for {destination.title()}:")
         for row in rows:
             dest, flight_nr, dep_time, seats = row
-            print(f"{airport}-> {dest}, flight number {flight_nr}, departure at {dep_time}, available seats {seats}.")
+            print(f"{FROM}-> {dest}, flight number {flight_nr}, departure at {dep_time}, available seats {seats}.")
 
     @staticmethod
     def read_flights_for_available():
@@ -385,7 +400,7 @@ class Database(BookFlight):
         print(f"Upcoming flights for {destination.title()}:")
         for row in rows:
             dest, flight_nr, dep_time, seats = row
-            print(f"{airport}-> {dest}, flight number {flight_nr}, departure at {dep_time}, available seats {seats}.")
+            print(f"{FROM}-> {dest}, flight number {flight_nr}, departure at {dep_time}, available seats {seats}.")
 
     @staticmethod
     def read_numbers(flight_number):
