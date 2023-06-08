@@ -39,9 +39,6 @@ DATE = f"{now.month}.{now.year}"
 # "FROM" constant stands for the departure location, can be changed anytime
 FROM = "Bucharest OTP"
 
-# "GATE" constant uses a random choice to provide a gate number
-GATE = random.choice(range(30))
-
 # a user needs to provide information such as a name, a preferred location with a
 # preferred flight number (for default, there are three flights per location, each
 # at different time - each flight has a unique number)
@@ -59,7 +56,7 @@ GATE = random.choice(range(30))
 
 class BookFlight:
     current_price = 0
-
+    
     def __init__(self, title):
         self.__title = title
 
@@ -183,7 +180,7 @@ class BookFlight:
         ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination, flight, gate)
         number = ticket.number
         self.generate_pdf(
-            ticket.number, seat, name, destination, date, flight, departure_time, gate
+            number, seat, name, destination, date, flight, departure_time, gate
         )
         # updating the database with the information from the user
         cursor.execute(
@@ -526,6 +523,7 @@ class Database(BookFlight):
         )
         connection.commit()
 
+# each flight has his own gate number
     @staticmethod
     def read_dep_time(flight_number):
         """Method that returns the departure time of a specific flight."""
