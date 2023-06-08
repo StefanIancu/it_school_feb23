@@ -176,24 +176,24 @@ class BookFlight:
         seat = self.get_user_seat()
         luggage = self.get_user_luggage()
         date = self.get_user_date()
-        departure_time = Database.read_dep_time(flight.upper())
+        departure_time, gate = Database.read_dep_time(flight.upper())
         price = PlaneTicket.current_price
         print("Your ticket has been generated. Thank you for picking us!")
         Database.drop_seats(flight.upper())
-        ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination, flight)
+        ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination, flight, gate)
         number = ticket.number
         self.generate_pdf(
-            ticket.number, seat, name, destination, date, flight, departure_time
+            ticket.number, seat, name, destination, date, flight, departure_time, gate
         )
         # updating the database with the information from the user
         cursor.execute(
-            """INSERT INTO flights ("name", "destination", "cost", "ticket", "flight_nr") VALUES (?, ?, ?, ?, ?)""",
-            (name, destination.title(), price, number, flight.upper()),
+            """INSERT INTO flights ("name", "destination", "cost", "ticket", "flight_nr", "gate") VALUES (?, ?, ?, ?, ?, ?)""",
+            (name, destination.title(), price, number, flight.upper(), gate)
         )
         connection.commit()
 
     def generate_pdf(
-        self, number, seat, name, destination, date, flight_number, departure_time
+        self, number, seat, name, destination, date, flight_number, departure_time, gate
     ):
         """Method that takes some user information and fills a PDF file
         with the specific information."""
@@ -212,7 +212,7 @@ class BookFlight:
 
         pdf.cell(270, 10, txt=f"Departure time: {departure_time}", ln=7, align="R")
         pdf.cell(270, 10, txt=f"Departure date: {date}.{DATE}", ln=7, align="R")
-        pdf.cell(270, 10, txt=f"Gate: {GATE}", ln=8, align="R")
+        pdf.cell(270, 10, txt=f"Gate: {gate}", ln=8, align="R")
         pdf.cell(270, 10, txt=f"From: {FROM}", ln=9, align="R")
         pdf.cell(270, 10, txt=f"To: {destination.title()}", ln=10, align="R")
         pdf.image(f"{UTILS}/airplane.jpeg", w=10, h=10, x=235, y=120)
@@ -324,13 +324,14 @@ class CancelFlight:
 class PlaneTicket(BookFlight):
     current_number = 100
 
-    def __init__(self, number, name: str, seat, date, destination, flight_number):
+    def __init__(self, number, name: str, seat, date, destination, flight_number, gate):
         self.__number = f"{random.choice(ascii_uppercase)}{PlaneTicket.current_number}"
         self.__name = name
         self.__seat = seat
         self.__date = date
         self.__destination = destination
         self.__flight_number = flight_number
+        self.__gate = gate
         PlaneTicket.current_number += 1
         self.current_price = 0
 
@@ -354,6 +355,10 @@ class PlaneTicket(BookFlight):
     def flight_number(self):
         return self.__flight_number
 
+    @property
+    def gate(self):
+        return self.__gate
+    
     @property
     def destination(self):
         if self.__destination not in list(DESTINATIONS_AND_PRICES.keys()):
@@ -379,13 +384,13 @@ class Database(BookFlight):
         connection = sqlite3.connect(DB_PATH)
         cursor = connection.cursor()
         rows = cursor.execute(
-            """SELECT "name", "destination", "cost", "ticket", "flight_nr" FROM flights
+            """SELECT "name", "destination", "cost", "ticket", "flight_nr", "gate" FROM flights
             """
         )
         for row in rows:
-            name, destination, cost, ticket, flight = row
+            name, destination, cost, ticket, flight, gate = row
             print(
-                f"{name}, {FROM}->{destination}, €{cost}, ticket no.{ticket}, flight number {flight}."
+                f"{name}, {FROM}->{destination}, €{cost}, ticket no.{ticket}, flight number {flight}, gate {gate}."
             )
 
     @staticmethod
@@ -399,9 +404,10 @@ class Database(BookFlight):
         flight_number = input("Flight number: ")
         time = input("Departure time: ")
         seats = input("Number of seats: ")
+        gate = input("Gate number: ")
         cursor.execute(
-            """INSERT INTO departures ("destination", "flight_number", "time", "seats ") VALUES (?, ?, ?, ?)""",
-            (destination.title(), flight_number, time, seats),
+            """INSERT INTO departures ("destination", "flight_number", "time", "seats ", "gate") VALUES (?, ?, ?, ?, ?)""",
+            (destination.title(), flight_number, time, seats, gate),
         )
         connection.commit()
 
@@ -427,9 +433,9 @@ class Database(BookFlight):
 
         print(f"Upcoming flights for {destination.title()}:")
         for row in rows:
-            dest, flight_nr, dep_time, seats = row
+            dest, flight_nr, dep_time, seats, gate = row
             print(
-                f"{FROM}-> {dest}, flight number {flight_nr}, departure at {dep_time}, available seats {seats}."
+                f"{FROM}-> {dest}, flight number {flight_nr}, departure at {dep_time}, available seats {seats}, gate {gate}."
             )
 
     @staticmethod
@@ -455,9 +461,9 @@ class Database(BookFlight):
 
         print(f"Upcoming flights for {destination.title()}:")
         for row in rows:
-            dest, flight_nr, dep_time, seats = row
+            dest, flight_nr, dep_time, seats, gate = row
             print(
-                f"{FROM}-> {dest}, flight number {flight_nr}, departure at {dep_time}, available seats {seats}."
+                f"{FROM}-> {dest}, flight number {flight_nr}, departure at {dep_time}, available seats {seats}, gate {gate}."
             )
 
     @staticmethod
@@ -526,9 +532,10 @@ class Database(BookFlight):
         connection = sqlite3.connect(DB_PATH)
         cursor = connection.cursor()
         rows = cursor.execute(
-            """SELECT time FROM departures WHERE flight_number == ? 
+            """SELECT time, gate FROM departures WHERE flight_number == ? 
             """,
             (flight_number,),
         )
         for row in rows:
-            return row[0]
+            time, gate = row
+            return time, gate
