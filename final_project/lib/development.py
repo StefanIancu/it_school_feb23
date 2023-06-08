@@ -9,8 +9,10 @@ from pathlib import Path
 from fpdf import FPDF
 
 ROOT = Path(__file__).parent
-
 DB_PATH = ROOT / "flights.db"
+UTILS = ROOT.parent / "utils"
+TICKETS = ROOT.parent / "tickets"
+
 connection = sqlite3.connect(DB_PATH)
 cursor = connection.cursor()
 
@@ -183,7 +185,7 @@ class BookFlight:
         pdf.cell(270, 10, txt=f"Gate: {GATE}", ln=8, align="R")
         pdf.cell(270, 10, txt=f"From: {FROM}", ln=9, align="R")
         pdf.cell(270, 10, txt=f"To: {destination.title()}", ln=10, align="R")
-        pdf.image("airplane.jpeg", w=10, h=10, x=235, y=120)
+        pdf.image(f"{UTILS}/airplane.jpeg", w=10, h=10, x=235, y=120)
 
         pdf.cell(100, 10, txt="Gate closes 15 minutes before departure.",
                  ln = 11, align="L") 
@@ -193,7 +195,7 @@ class BookFlight:
         pdf.cell(100, 10, txt = "More details at: www.flyhome.com",
                  ln = 13, align= "L")
         
-        pdf.image("plane.jpeg", w=60, h=60, x=190, y=1)
+        pdf.image(f"{UTILS}/plane.jpeg", w=60, h=60, x=190, y=1)
         pdf.code39("*fpdf2*", x=130, y=140, w=4, h=15)
 
         pdf.cell(100, 10, txt="*Please watch screens for border time.",
@@ -216,7 +218,7 @@ class WhereToGo:
     @staticmethod
     def see_list_of_destinations():
         """Reads the destinations available and their prices from a csv file."""
-        with open("destinations.csv") as fin:
+        with open(f"{UTILS}/destinations.csv") as fin:
             reader = csv.reader(fin.readlines()[1:])
 
         for line in reader:
@@ -235,7 +237,7 @@ class Help:
     @staticmethod
     def ask_help():
         """Provides useful information to the user."""
-        with open(ROOT / "travel.txt", "r") as fin:
+        with open(f"{UTILS}/travel.txt", "r") as fin:
             content = fin.readlines()
   
         for line in content:
@@ -470,6 +472,3 @@ class Database(BookFlight):
         )
         for row in rows:
             return row[0] 
-
-
-    
