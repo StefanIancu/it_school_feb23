@@ -95,13 +95,17 @@ class BookFlight:
                 print("We are sorry. We currently don't fly there!")
         return destination_answer
 
+# checking if the flight exists and if there are any available seats
     def pick_a_flight(self):
         """Asks the user to pick a flight number from the list of available
         flights."""
         while True:
             flight_answer = input("Please choose a flight by entering its number: ")
             if Database.read_numbers(flight_answer.upper()):
-                break
+                if not Database.check_seats(flight_answer.upper()):
+                    break
+                else:
+                    print("No seats left for this flight. Please choose another.")
             else:
                 print("Please enter the correct flight number.")
         return flight_answer
@@ -537,3 +541,19 @@ class Database(BookFlight):
         for row in rows:
             time, gate = row
             return time, gate
+
+# a while loop + this method should not let the user advance if there are 0 seats
+    @staticmethod
+    def check_seats(flight_number):
+        """Method that returns a bool if a certain flight has no seat
+        available."""
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
+        rows = cursor.execute(
+            """SELECT EXISTS (SELECT 1 FROM departures WHERE "seats " == 0 and
+            "flight_number" == ?)""", (flight_number, )
+        )
+
+        for row in rows:
+            return row[0] == 1
+
