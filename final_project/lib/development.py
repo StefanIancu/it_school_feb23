@@ -39,6 +39,11 @@ DATE = f"{now.month}.{now.year}"
 # "FROM" constant stands for the departure location, can be changed anytime
 FROM = "Bucharest OTP"
 
+# global variable - stores the input of get_user_destination in order to pass it 
+# to read_numbers method. this lets the user choose only from the flights that are 
+# currently displaying on the screen
+destination_global = ""
+
 # a user needs to provide information such as a name, a preferred location with a
 # preferred flight number (for default, there are three flights per location, each
 # at different time - each flight has a unique number)
@@ -74,6 +79,8 @@ class BookFlight:
                 print("Please don't use characters.")
             elif name_answer == "":
                 print("Field required.")
+            elif name_answer.isspace():
+                print("Field required.")
             else:
                 break
         print(f"Welcome, {name_answer.title()}!")
@@ -83,6 +90,7 @@ class BookFlight:
         """Takes the user destination and matches the starting price of the
         ticket with the specific destination price from DESTINATIONS_AND_PRICES
         dictionary. This can be changed anytime."""
+        global destination_global
         while True:
             destination_answer = input(f"Where would you like to go? ")
             if destination_answer.lower() in list(DESTINATIONS_AND_PRICES.keys()):
@@ -93,15 +101,18 @@ class BookFlight:
                 break
             else:
                 print("We are sorry. We currently don't fly there!")
+        destination_global = destination_answer.title()
         return destination_answer
 
-# checking if the flight exists and if there are any available seats
+# checking if the flight exists and if there are any available seats. lets
+# the user only choose from the flights matched with the destination they previously
+# chose
     def pick_a_flight(self):
         """Asks the user to pick a flight number from the list of available
         flights."""
         while True:
             flight_answer = input("Please choose a flight by entering its number: ")
-            if Database.read_numbers(flight_answer.upper()):
+            if Database.read_numbers(flight_answer.upper(), destination_global):
                 if not Database.check_seats(flight_answer.upper()):
                     break
                 else:
@@ -468,13 +479,14 @@ class Database(BookFlight):
             )
 
     @staticmethod
-    def read_numbers(flight_number):
-        """Method that reads from a database of flights certain flights numbers."""
+    def read_numbers(flight_number, destination):
+        """Method that checks from the database "flights" that certain flights 
+        numbers are actually existing."""
         connection = sqlite3.connect(DB_PATH)
         cursor = connection.cursor()
         rows = cursor.execute(
-            """SELECT EXISTS(SELECT 1 FROM departures WHERE flight_number = ?)""",
-            (flight_number.upper(),),
+            """SELECT EXISTS(SELECT 1 FROM departures WHERE flight_number = ? and destination = ?)""",
+            (flight_number.upper(), destination),
         )
 
         for row in rows:
