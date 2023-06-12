@@ -245,7 +245,7 @@ class BookFlight:
         )
         pdf.cell(100, 10, txt="**No refund available for this flight.", ln=22, align="")
 
-        pdf.output(f"planeticket_{number}.pdf")
+        pdf.output(f"/Users/stefantraianiancu/Desktop/it_school/final_project/tickets/planeticket_{number}.pdf")
 
 
 # the user has the option to see the destinations and their starting prices
