@@ -245,7 +245,7 @@ class BookFlight:
         )
         pdf.cell(100, 10, txt="**No refund available for this flight.", ln=22, align="")
 
-        pdf.output(f"/Users/stefantraianiancu/Desktop/it_school/final_project/tickets/planeticket_{number}.pdf")
+        pdf.output(f"{TICKETS}/planeticket_{number}.pdf")
 
 
 # the user has the option to see the destinations and their starting prices
@@ -330,7 +330,7 @@ class CancelFlight:
                 print(f"Ticket {del_res.upper()} doesn't exist.")
 
 
-# basic class that defines the attributes of a plane ticket
+# class that defines the attributes of a plane ticket
 
 
 class PlaneTicket(BookFlight):
@@ -349,7 +349,7 @@ class PlaneTicket(BookFlight):
 
     @property
     def name(self):
-        return self.__name
+        return str(self.__name)
 
     @property
     def number(self):
@@ -382,7 +382,7 @@ class PlaneTicket(BookFlight):
 # either to select info, update, delete, check if exists and a method for the staff
 # where they can record new flights
 # each method is used together with other methods from above in order to make the
-# program run efficiently
+# program run accurately
 
 
 class Database(BookFlight):
@@ -568,4 +568,3 @@ class Database(BookFlight):
 
         for row in rows:
             return row[0] == 1
-

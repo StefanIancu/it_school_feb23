@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,12 +6,13 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT School TODO App</title>
+    <link rel="stylesheet" href = "{% static 'custom.css'%}">
 </head>
 <body>
     <h1>To DO!</h1>
     <ol>
         {% for todo in object_list%}
-            <li>{{todo.title}}</li>
+            <li><a href="{% url "todo_one" todo.id%}">{{todo.title}}</li>    
         {% endfor %}
     </ol>
 </body>

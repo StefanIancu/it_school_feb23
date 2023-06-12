@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+</head>
+<body>
+   <pre>Pagina generata la TS: {{render_ts}} </pre>
+   <form action = "" method ="post">
+        {% csrf_token %}
+        <input type ="text" name="a" placeholder="base">
+        <input type ="text" name="b" placeholder="exponent">
+        <button type="submit">Trimite</button>
+   </form>
+   <pre> {{ result }} </pre>
+</body>
+</html>

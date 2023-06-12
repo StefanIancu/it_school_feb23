@@ -1,8 +1,10 @@
 import sys
 from abc import ABC, abstractmethod
 from typing import List
+import pickle
 
 from development import (
+    ROOT,
     DATE,
     BookFlight,
     CancelFlight,
@@ -41,6 +43,11 @@ class MenuActionItem(MenuItem):
 # the user to main menu
 
 
+count = PlaneTicket.number
+
+# with open(ROOT / "ticketcount.pickle", "rb") as fin:
+#     print(pickle.load(fin))
+
 class FindPlane(MenuItem):
     def execute(self):
         print(f"{self.title:-^50}\n")
@@ -48,6 +55,9 @@ class FindPlane(MenuItem):
             demo.generate_ticket()
         except OSError as err:
             print(err)
+        else:
+            with open(ROOT / "ticketcount.pickle", "wb") as fout:
+                pickle.dump(count, fout)
         input("Press any key to return: ")
 
 
@@ -133,7 +143,7 @@ class ExitItem(MenuItem):
         sys.exit(0)
 
 
-# created a demo oject type BookFlight in order to access the "generate ticket" method
+# created a demo object type BookFlight in order to access the "generate ticket" method
 demo = BookFlight("demo")
 
 # here are all the menu options. their names can be changed anytime as long as
@@ -148,5 +158,5 @@ main_menu.add_choice(GiveHelp("Get help"))
 main_menu.add_choice(ExitItem("Exit"))
 
 # continuous execution until the user decides to exit the program
-while True:
-    main_menu.execute()
+counts = getattr(PlaneTicket,"number")
+# print(counts)
