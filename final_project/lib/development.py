@@ -2,6 +2,7 @@ import csv
 import random
 import sqlite3
 import pickle
+import json
 
 from datetime import date
 from pathlib import Path
@@ -14,6 +15,7 @@ ROOT = Path(__file__).parent
 DB_PATH = ROOT / "flights.db"
 UTILS = ROOT.parent / "utils"
 TICKETS = ROOT.parent / "tickets"
+DATA_STORE_PATH = ROOT / "count.json"
 
 # establishing a database connection
 connection = sqlite3.connect(DB_PATH)
@@ -195,7 +197,9 @@ class BookFlight:
         print("Your ticket has been generated. Thank you for picking us!")
         Database.drop_seats(flight.upper())
         ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination, flight, gate)
-        number = ticket.number
+        save_json(PlaneTicket.current_number)
+        # number = ticket.number
+        number = f"{random.choice(ascii_uppercase)}{load_json()}"
         self.generate_pdf(
             number, seat, name, destination, date, flight, departure_time, gate
         )
@@ -205,7 +209,7 @@ class BookFlight:
             (name, destination.title(), price, number, flight.upper(), gate)
         )
         connection.commit()
-        # import_ticket_count(number)
+        
 
     def generate_pdf(
         self, number, seat, name, destination, date, flight_number, departure_time, gate
@@ -573,22 +577,12 @@ class Database(BookFlight):
             return row[0] == 1
         
 
-def import_ticket_count(number):
-    try:
-        with open(ROOT / "ticketcount.pickle", "wb") as fout:
-            pickle.dump(number, fout)
-    except pickle.PickleError as err:
-        print(err)
-    else:
-        print("Counter successfully imported.")
+def save_json(number):
+    with open(DATA_STORE_PATH, "w") as fout:
+        json.dump(number, fout, indent=4)
 
-def export_ticket_count():
-    try:
-        with open(ROOT / "ticketcount.pickle", "rb") as fin:
-            counter = pickle.load(fin)
-    except pickle.UnpicklingError as err:
-        print(err)
-    else:
-        print(f"Your counter is {counter}.")
-        return counter        
-
+def load_json():
+    with open(DATA_STORE_PATH, "r") as fin:
+        count = json.load(fin)
+        return count + 1
+    
