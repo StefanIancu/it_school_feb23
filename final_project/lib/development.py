@@ -1,6 +1,8 @@
 import csv
 import random
 import sqlite3
+import pickle
+
 from datetime import date
 from pathlib import Path
 from string import ascii_uppercase, punctuation
@@ -203,6 +205,7 @@ class BookFlight:
             (name, destination.title(), price, number, flight.upper(), gate)
         )
         connection.commit()
+        # import_ticket_count(number)
 
     def generate_pdf(
         self, number, seat, name, destination, date, flight_number, departure_time, gate
@@ -568,3 +571,24 @@ class Database(BookFlight):
 
         for row in rows:
             return row[0] == 1
+        
+
+def import_ticket_count(number):
+    try:
+        with open(ROOT / "ticketcount.pickle", "wb") as fout:
+            pickle.dump(number, fout)
+    except pickle.PickleError as err:
+        print(err)
+    else:
+        print("Counter successfully imported.")
+
+def export_ticket_count():
+    try:
+        with open(ROOT / "ticketcount.pickle", "rb") as fin:
+            counter = pickle.load(fin)
+    except pickle.UnpicklingError as err:
+        print(err)
+    else:
+        print(f"Your counter is {counter}.")
+        return counter        
+

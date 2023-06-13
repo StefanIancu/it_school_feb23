@@ -43,10 +43,9 @@ class MenuActionItem(MenuItem):
 # the user to main menu
 
 
-count = PlaneTicket.number
+count = PlaneTicket.current_number
 
-# with open(ROOT / "ticketcount.pickle", "rb") as fin:
-#     print(pickle.load(fin))
+
 
 class FindPlane(MenuItem):
     def execute(self):
@@ -158,5 +157,8 @@ main_menu.add_choice(GiveHelp("Get help"))
 main_menu.add_choice(ExitItem("Exit"))
 
 # continuous execution until the user decides to exit the program
-counts = getattr(PlaneTicket,"number")
-# print(counts)
+while True:
+    main_menu.execute()
+
+# with open(ROOT / "ticketcount.pickle", "wb") as fout:
+#     pickle.dump(count, fout)
