@@ -2,6 +2,7 @@ import csv
 import random
 import sqlite3
 import json
+import os
 
 from datetime import date
 from pathlib import Path
@@ -329,9 +330,14 @@ class CancelFlight:
                     """DELETE FROM flights WHERE ticket == ?""", (del_res.upper(),)
                 )
                 connection.commit()
-                print(
-                    f"The reservation with {del_res.upper()} has been successfully deleted. "
-                )
+                try:
+                    del_file(f"{TICKETS}/planeticket_{del_res.upper()}.pdf")
+                except OSError as err:
+                    print(err)
+                else:    
+                    print(
+                     f"The reservation with {del_res.upper()} has been successfully deleted. "
+                    )
                 break
             else:
                 print(f"Ticket {del_res.upper()} doesn't exist.")
@@ -576,9 +582,10 @@ class Database(BookFlight):
         for row in rows:
             return row[0] == 1
         
-# defined two functions: 
+# defined three json functions: 
 # save_json is overwriting the json.count file with the current ticket number
 # load_json is returning the count value and adds +1 to it 
+# 
 def save_json(number):
     with open(DATA_STORE_PATH, "w") as fout:
         json.dump(number, fout, indent=4)
@@ -587,4 +594,15 @@ def load_json():
     with open(DATA_STORE_PATH, "r") as fin:
         count = json.load(fin)
         return count + 1
-    
+
+def reset_json():
+    number = int(input("Choose a value to restart the counter: "))
+    with open(DATA_STORE_PATH, "w") as fout:
+        json.dump(number, fout, indent=4)
+        print("Done - counter has been reset.")
+
+# function that deletes the ticket
+def del_file(path: str):
+    os.remove(path)
+    print("File deleted.")
+
