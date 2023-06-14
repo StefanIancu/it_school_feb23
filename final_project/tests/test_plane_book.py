@@ -1,10 +1,11 @@
 import sys
 from unittest import TestCase
-from unittest import mock
+from unittest.mock import Mock
 from nose.tools import *
 from lib.development import BookFlight, WhereToGo, UTILS, PlaneTicket
-import unittest
 from unittest.mock import mock_open, patch
+
+data = Mock()
 
 class TestConstructor(TestCase):
 
@@ -39,8 +40,15 @@ class TestConstructor(TestCase):
 #             self.assertEqual(version, content)
 #             m.assert_called_with(f"{UTILS}/destinations.csv")
 
-class TestTicket(TestCase):
+req = Mock()
+class GetName(TestCase):
 
-    def test_title(self):
-        ticket = PlaneTicket("test","TestTest",48,10,"test", "test", "test")
-        self.assertIsInstance(ticket.title, str)
+    def get_name(self):
+        answer = Mock()
+        answer.return_value = 10
+        return answer
+
+
+    def test_user_name(self): 
+        req.side_effect = self.get_name()
+        assert BookFlight.get_user_name(self) is str
