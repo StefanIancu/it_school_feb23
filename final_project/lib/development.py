@@ -10,7 +10,7 @@ from string import ascii_uppercase, punctuation
 
 from fpdf import FPDF
 
-# paths to certain objects
+# paths to certain dirs
 ROOT = Path(__file__).parent
 DB_PATH = ROOT / "flights.db"
 UTILS = ROOT.parent / "utils"
@@ -21,7 +21,8 @@ DATA_STORE_PATH = ROOT / "count.json"
 connection = sqlite3.connect(DB_PATH)
 cursor = connection.cursor()
 
-# any destination/its price can be changed from here
+# any destination/its price can be changed from here. always change the 
+# key - destination using lowercase and the value - price needs to be an integer/float
 DESTINATIONS_AND_PRICES = {
     "timisoara": 150,
     "budapest": 150,
@@ -57,7 +58,7 @@ destination_global = ""
 # *the starting price matches the price from the "DESTINATIONS AND PRICES" dictionary
 # and increases based on their choices
 # in the end, they will choose a departure date from the present month and their
-# boarding pass will be generated as a PDF file.
+# boarding pass will be generated as a PDF file in the "tickets" dir.
 
 # creating a class for each menu option. each class has certain methods that
 # work together (doc-string can be found for each method)
@@ -278,9 +279,9 @@ class WhereToGo:
             print(f"""{line[0].replace(";", " from €")}""")
 
 
-# the user has the option to see the help option, here could be anything from
+# the user has the option to see the help option. here could be anything from
 # flight-related details to traveling tips. usually read from a doc, txt file.
-# for default there is a EU guide regarding traveling rights.
+# for default there is a guide related to EU traveling rights.
 
 
 class Help:
@@ -306,7 +307,8 @@ class Help:
 
 # the user has the option to cancel a reservation by inputting the ticket number
 # received when first booked.
-# when a reservation is deleted, the "seat available" return to the previous value
+# when a reservation is deleted, the "seat available" value returns to the previous value
+# and the pdf generated is deleted
 
 
 class CancelFlight:
@@ -418,6 +420,7 @@ class Database(BookFlight):
                 f"{name}, {FROM}->{destination}, €{cost}, ticket no.{ticket}, flight number {flight}, gate {gate}."
             )
 
+# staff only
     @staticmethod
     def add_flight():
         """Method that adds a flight to the "flights" database containing
@@ -519,6 +522,7 @@ class Database(BookFlight):
         for row in rows:
             return row[0] == 1
 
+# two methods that are taking care of the seats value to be constantly updating
     @staticmethod
     def drop_seats(flight_number):
         """ "Method that substitutes one seat for each booking in order to keep
@@ -585,7 +589,7 @@ class Database(BookFlight):
 # defined three json functions: 
 # save_json is overwriting the json.count file with the current ticket number
 # load_json is returning the count value and adds +1 to it 
-# 
+# reset_json is resetting the counter from a desired value
 def save_json(number):
     with open(DATA_STORE_PATH, "w") as fout:
         json.dump(number, fout, indent=4)
@@ -601,7 +605,8 @@ def reset_json():
         json.dump(number, fout, indent=4)
         print("Done - counter has been reset.")
 
-# function that deletes the ticket
+# function that deletes the pdf file generated after the reservation has been 
+# cancelled
 def del_file(path: str):
     os.remove(path)
     print("File deleted.")
