@@ -43,10 +43,6 @@ class MenuActionItem(MenuItem):
 # the user to main menu
 
 
-count = PlaneTicket.current_number
-
-
-
 class FindPlane(MenuItem):
     def execute(self):
         print(f"{self.title:-^50}\n")
@@ -54,9 +50,6 @@ class FindPlane(MenuItem):
             demo.generate_ticket()
         except OSError as err:
             print(err)
-        else:
-            with open(ROOT / "ticketcount.pickle", "wb") as fout:
-                pickle.dump(count, fout)
         input("Press any key to return: ")
 
 
@@ -159,6 +152,3 @@ main_menu.add_choice(ExitItem("Exit"))
 # continuous execution until the user decides to exit the program
 while True:
     main_menu.execute()
-
-# with open(ROOT / "ticketcount.pickle", "wb") as fout:
-#     pickle.dump(count, fout)

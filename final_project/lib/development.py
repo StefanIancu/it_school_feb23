@@ -197,9 +197,11 @@ class BookFlight:
         print("Your ticket has been generated. Thank you for picking us!")
         Database.drop_seats(flight.upper())
         ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination, flight, gate)
-        save_json(PlaneTicket.current_number)
+        # save_json(PlaneTicket.current_number)
         # number = ticket.number
         number = f"{random.choice(ascii_uppercase)}{load_json()}"
+        number_json = load_json()
+        save_json(number_json)
         self.generate_pdf(
             number, seat, name, destination, date, flight, departure_time, gate
         )
