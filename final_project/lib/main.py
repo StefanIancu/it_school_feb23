@@ -1,7 +1,6 @@
 import sys
 from abc import ABC, abstractmethod
 from typing import List
-import pickle
 
 from development import (
     ROOT,

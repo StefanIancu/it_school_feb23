@@ -1,7 +1,6 @@
 import csv
 import random
 import sqlite3
-import pickle
 import json
 
 from datetime import date
@@ -197,7 +196,6 @@ class BookFlight:
         print("Your ticket has been generated. Thank you for picking us!")
         Database.drop_seats(flight.upper())
         ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination, flight, gate)
-        # save_json(PlaneTicket.current_number)
         # number = ticket.number
         number = f"{random.choice(ascii_uppercase)}{load_json()}"
         number_json = load_json()
@@ -578,7 +576,9 @@ class Database(BookFlight):
         for row in rows:
             return row[0] == 1
         
-
+# defined two functions: 
+# save_json is overwriting the json.count file with the current ticket number
+# load_json is returning the count value and adds +1 to it 
 def save_json(number):
     with open(DATA_STORE_PATH, "w") as fout:
         json.dump(number, fout, indent=4)
