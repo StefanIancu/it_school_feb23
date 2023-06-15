@@ -3,6 +3,7 @@ import random
 import sqlite3
 import json
 import os
+import getpass
 
 from datetime import date
 from pathlib import Path
@@ -59,6 +60,11 @@ destination_global = ""
 # and increases based on their choices
 # in the end, they will choose a departure date from the present month and their
 # boarding pass will be generated as a PDF file in the "tickets" dir.
+
+# dict containing user ids and passwords
+staff_accounts = { "stefan.iancu": "12345",
+                  "andrei.stancu" : "6789"
+}
 
 # creating a class for each menu option. each class has certain methods that
 # work together (doc-string can be found for each method)
@@ -586,6 +592,56 @@ class Database(BookFlight):
         for row in rows:
             return row[0] == 1
         
+
+# check tickets stats
+    @staticmethod
+    def check_cost_stats(destination=None):
+        """Method that returns the number of bought tickets, the average cost 
+        of a ticket and the sum of all tickets that have been bought - FOR STAFF ONLY.
+        *optional argument - destination"""
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
+        if destination != None:
+            rows = cursor.execute(
+                """SELECT count(ticket), avg(cost), sum(cost)from flights WHERE destination == ?""",
+                (destination.title(), )
+            )
+            for row in rows:
+                number1, avg1, sum1 = row
+                print(f"Total number of purchased tickets for {destination.title()} is {number1}, with the average cost of {avg1}€. Income generated {sum1}€.")
+        else:
+            rows = cursor.execute(
+                """SELECT count(ticket), avg(cost), sum(cost)from flights"""
+            )
+            for row in rows:
+                number, avg, sum = row
+                print(f"Total number of purchased tickets {number}, with the average cost of {avg}€. Income generated {sum}€.")
+        
+# check flights stats
+    @staticmethod
+    def check_flights_stats(destination=None):
+        """Method that returns the average number of available seats and the total of seats 
+        -FOR STAFF ONLY. 
+        *optional argument - destination"""
+        connection = sqlite3.connect(DB_PATH)
+        cursor = connection.cursor()
+        if destination != None:
+            rows = cursor.execute(
+                """SELECT avg("seats "), sum("seats ") from departures WHERE destination == ?""",
+                (destination.title(), )
+            )
+            for row in rows:
+                avg_seats, total_seats = row
+                print(f"The total numbers of seats left for {destination.title()} is {total_seats} with an average of {round(avg_seats)} per flight. ")
+        else:
+            rows = cursor.execute(
+                """SELECT avg("seats "), sum("seats ") from departures"""
+            )
+            for row in rows:
+                average, total = row
+                print(f"The total numbers of available seats is {total} with an average of {round(average)} per flight.")
+
+
 # defined three json functions: 
 # save_json is overwriting the json.count file with the current ticket number
 # load_json is returning the count value and adds +1 to it 
@@ -611,3 +667,16 @@ def del_file(path: str):
     os.remove(path)
     print("File deleted.")
 
+# function that takes the user through the authentication process
+def authenticate():
+    while True:
+        username = input("Please enter your username: ")
+        if username in list(staff_accounts.keys()):
+            password = getpass.getpass("Please enter your password: ")
+            if password == staff_accounts.get(username):
+                print("Access granted.")
+                break
+            else:
+                print("Access denied - please try again.")
+        else:
+            print("User not found.")

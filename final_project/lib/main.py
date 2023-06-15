@@ -1,6 +1,7 @@
 import sys
 from abc import ABC, abstractmethod
 from typing import List
+import getpass
 
 from development import (
     ROOT,
@@ -11,7 +12,11 @@ from development import (
     Help,
     PlaneTicket,
     WhereToGo,
+    staff_accounts,
+    authenticate
 )
+
+
 
 # the menu works in a continuous loop until the user decides to exit.
 # the user can go back to the main menu by pressing any key
@@ -104,6 +109,14 @@ class DelFlight(MenuItem):
             print(err)
         input("Press any key to return.")
 
+class StaffOnly(MenuItem):
+    def execute(self):
+        print(f"{self.title:-^50}\n")
+        try:
+            authenticate()
+        except ValueError as err:
+            print(err)
+        input("Press any to escape.")
 
 class MenuUserChoice(MenuItem):
     def __init__(self, title) -> None:
@@ -146,7 +159,9 @@ main_menu.add_choice(MyFlights("See your reservations"))
 main_menu.add_choice(DelFlight("Delete a reservation"))
 main_menu.add_choice(TravelTo("Where to travel"))
 main_menu.add_choice(GiveHelp("Get help"))
+main_menu.add_choice(StaffOnly("Staff only"))
 main_menu.add_choice(ExitItem("Exit"))
+
 
 # continuous execution until the user decides to exit the program
 while True:
