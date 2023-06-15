@@ -681,7 +681,7 @@ def authenticate():
         else:
             print("User not found.")
 
-# sub menu for the "Staff only" option in main
+# sub-menu for the "Staff only" option in main
 def staff_option_one():
     while True:
             print("1 - Show general flight statistics")
@@ -698,7 +698,7 @@ def staff_option_one():
                 else:
                     print("Not an answer.")
 
-#sub-nmenu for "Staff only" option in main
+#sub-menu for "Staff only" option in main
 def staff_option_two():
     while True:
             print("1 - Show general ticket statistics")

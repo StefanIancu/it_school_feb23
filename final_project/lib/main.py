@@ -119,18 +119,19 @@ class StaffOnly(MenuItem):
             authenticate()
         except ValueError as err:
             print(err)
-        while True:
-            print("1 - Flight stats")
-            print("2 - Ticket stats")
-            answer = int(input("Please choose an item from above: "))
-            if answer == 1:
-                staff_option_one()
-                break
-            if answer == 2:
-                staff_option_two()
-                break
-            else:
-                print("Not an option")
+        else:
+            while True:
+                print("1 - Flight stats")
+                print("2 - Ticket stats")
+                answer = int(input("Please choose an item from above: "))
+                if answer == 1:
+                    staff_option_one()
+                    break
+                if answer == 2:
+                    staff_option_two()
+                    break
+                else:
+                    print("Not an option")
         input("Press any key to return.")
 
 class MenuUserChoice(MenuItem):
