@@ -13,7 +13,10 @@ from development import (
     PlaneTicket,
     WhereToGo,
     staff_accounts,
-    authenticate
+    authenticate,
+    DESTINATIONS_AND_PRICES,
+    staff_option_two,
+    staff_option_one
 )
 
 
@@ -116,7 +119,19 @@ class StaffOnly(MenuItem):
             authenticate()
         except ValueError as err:
             print(err)
-        input("Press any to escape.")
+        while True:
+            print("1 - Flight stats")
+            print("2 - Ticket stats")
+            answer = int(input("Please choose an item from above: "))
+            if answer == 1:
+                staff_option_one()
+                break
+            if answer == 2:
+                staff_option_two()
+                break
+            else:
+                print("Not an option")
+        input("Press any key to return.")
 
 class MenuUserChoice(MenuItem):
     def __init__(self, title) -> None:

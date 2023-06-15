@@ -680,3 +680,37 @@ def authenticate():
                 print("Access denied - please try again.")
         else:
             print("User not found.")
+
+# sub menu for the "Staff only" option in main
+def staff_option_one():
+    while True:
+            print("1 - Show general flight statistics")
+            print("2 - Show particular flight statistics")
+            reports1 = int(input("Choose an option: "))
+            if reports1 == 1:
+                Database.check_flights_stats()
+                break
+            if reports1 == 2:
+                answer = input("Choose a destination: ")
+                if answer.lower() in list(DESTINATIONS_AND_PRICES.keys()):
+                    Database.check_flights_stats(answer)
+                    break
+                else:
+                    print("Not an answer.")
+
+#sub-nmenu for "Staff only" option in main
+def staff_option_two():
+    while True:
+            print("1 - Show general ticket statistics")
+            print("2 - Show particular ticket statistics")
+            reports1 = int(input("Choose an option: "))
+            if reports1 == 1:
+                Database.check_cost_stats()
+                break
+            if reports1 == 2:
+                answer = input("Choose a destination: ")
+                if answer.lower() in list(DESTINATIONS_AND_PRICES.keys()):
+                    Database.check_cost_stats(answer)
+                    break
+                else:
+                    print("Not an answer.")
