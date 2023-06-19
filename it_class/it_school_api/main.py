@@ -1,10 +1,18 @@
 from typing import Union, Dict, List
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
-from models import GreetResponse, Course
+from schemas import GreetResponse, Course
 from datetime import datetime
+from db.base import Base
+from db.engine import engine
+
+import logging
+# logging.root.setLevel(logging.DEBUG)
+logging.basicConfig(filename="log.log",
+    level=logging.DEBUG, format="%(asctime)s [%(levelname)s] %(message)s")
 
 app = FastAPI()
+# Base.metadata.create_all(engine)
 
 external_data = [
     Course(name="Python Online", description="Learn Python 3", 
@@ -23,6 +31,7 @@ def read_root():
 @app.get("/hello/{name}")
 def greet_user(name: str) -> GreetResponse:
     """Get a greeting message and user name."""
+    logging.info("Hello method called.")
     return GreetResponse(greet_msg="Hello", name=name.title())
 
 @app.get("/courses")

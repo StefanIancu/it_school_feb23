@@ -9,6 +9,9 @@ class GreetResponse(BaseModel):
 
 class Course(BaseModel):
 
+    class Config:
+        orm_mode = True
+
     id: int
     name: str
     description: str
@@ -18,4 +21,5 @@ class Course(BaseModel):
     seats: int
 
 # class CoursePath(BaseModel):
+
 
