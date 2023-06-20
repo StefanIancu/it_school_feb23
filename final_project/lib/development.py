@@ -4,6 +4,7 @@ import sqlite3
 import json
 import os
 import getpass
+import logging
 
 from datetime import date
 from pathlib import Path
@@ -65,6 +66,10 @@ destination_global = ""
 staff_accounts = { "stefan.iancu": "12345",
                   "andrei.stancu" : "6789"
 }
+
+# logging config to store useful information 
+logging.basicConfig(filename=f"{UTILS}/log.log", level=logging.DEBUG,
+                    format="%(asctime)s [%(levelname)s] %(message)s")
 
 # creating a class for each menu option. each class has certain methods that
 # work together (doc-string can be found for each method)
@@ -217,7 +222,7 @@ class BookFlight:
             (name, destination.title(), price, number, flight.upper(), gate)
         )
         connection.commit()
-        
+        logging.info("Ticket generated.")
 
     def generate_pdf(
         self, number, seat, name, destination, date, flight_number, departure_time, gate
@@ -338,6 +343,7 @@ class CancelFlight:
                     """DELETE FROM flights WHERE ticket == ?""", (del_res.upper(),)
                 )
                 connection.commit()
+                logging.warning("Reservation deleted.")
                 try:
                     del_file(f"{TICKETS}/planeticket_{del_res.upper()}.pdf")
                 except OSError as err:
@@ -444,6 +450,7 @@ class Database(BookFlight):
             (destination.title(), flight_number, time, seats, gate),
         )
         connection.commit()
+        logging.info("New flight added.")
 
     @staticmethod
     def read_flights(destination):
@@ -564,7 +571,7 @@ class Database(BookFlight):
 
 # each flight has his own gate number
     @staticmethod
-    def read_dep_time(flight_number):
+    def read_dep_time(flight_number: str) -> tuple:
         """Method that returns the departure time of a specific flight."""
         connection = sqlite3.connect(DB_PATH)
         cursor = connection.cursor()
@@ -675,6 +682,7 @@ def authenticate():
             password = getpass.getpass("Please enter your password: ")
             if password == staff_accounts.get(username):
                 print("Access granted.")
+                logging.info(f"{username} connected.")
                 break
             else:
                 print("Access denied - please try again.")

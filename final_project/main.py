@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from typing import List
 import getpass
 
-from development import (
+from lib.development import (
     ROOT,
     DATE,
     BookFlight,
