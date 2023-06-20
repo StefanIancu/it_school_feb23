@@ -6,6 +6,7 @@ import getpass
 from lib.development import (
     ROOT,
     DATE,
+    DB_PATH,
     BookFlight,
     CancelFlight,
     Database,
@@ -64,7 +65,7 @@ class MyFlights(MenuItem):
     def execute(self):
         print(f"{self.title:-^50}\n")
         try:
-            Database.read_database()
+            database.read_database()
         except OSError as err:
             print(err)
         input("Press any key to return: ")
@@ -76,7 +77,7 @@ class AvailableFlights(MenuItem):
         print(f"NOTE: Please note that the following flights are for {DATE}.")
         WhereToGo.see_list_of_destinations()
         try:
-            Database.read_flights_for_available()
+            database.read_flights_for_available()
         except OSError as err:
             print(err)
         input("Press any key to return: ")
@@ -105,7 +106,7 @@ class GiveHelp(MenuItem):
 class DelFlight(MenuItem):
     def execute(self):
         print(f"{self.title:-^50}\n")
-        Database.read_database()
+        database.read_database()
         try:
             CancelFlight.delete_reservation()
         except OSError as err:
@@ -165,6 +166,9 @@ class ExitItem(MenuItem):
 
 # created a demo object type BookFlight in order to access the "generate ticket" method
 demo = BookFlight("demo")
+
+# created demo object type Database to access certain methods
+database = Database(DB_PATH)
 
 # here are all the menu options. their names can be changed anytime as long as
 # they're strings

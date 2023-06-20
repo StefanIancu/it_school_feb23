@@ -113,7 +113,7 @@ class BookFlight:
                 PlaneTicket.current_price += DESTINATIONS_AND_PRICES[
                     destination_answer.lower()
                 ]
-                Database.read_flights(destination_answer)
+                develop_data_object.read_flights(destination_answer)
                 break
             else:
                 print("We are sorry. We currently don't fly there!")
@@ -128,8 +128,8 @@ class BookFlight:
         flights."""
         while True:
             flight_answer = input("Please choose a flight by entering its number: ")
-            if Database.read_numbers(flight_answer.upper(), destination_global):
-                if not Database.check_seats(flight_answer.upper()):
+            if develop_data_object.read_numbers(flight_answer.upper(), destination_global):
+                if not develop_data_object.check_seats(flight_answer.upper()):
                     break
                 else:
                     print("No seats left for this flight. Please choose another.")
@@ -145,15 +145,21 @@ class BookFlight:
             if seat_answer == "":
                 print("Field required.")
             elif seat_answer in "yesYES":
-                PlaneTicket.current_price += 50
-                seat_answer = (
-                    f"{random.choice(range(75))}{random.choice(ascii_uppercase)}"
-                )
-                print("Seat reserved!")
-                break
+                if seat_answer not in "eE":
+                    PlaneTicket.current_price += 50
+                    seat_answer = (
+                        f"{random.choice(range(75))}{random.choice(ascii_uppercase)}"
+                    )
+                    print("Seat reserved!")
+                    break
+                else:
+                    print("Sorry, that's not an answer.")
             elif seat_answer in "noNO":
-                seat_answer = "(to be assigned at check-in)"
-                break
+                if seat_answer not in "oO":
+                    seat_answer = "(to be assigned at check-in)"
+                    break
+                else:
+                    print("Sorry, that's not an answer.")
             else:
                 print("Sorry, not an answer.")
         return seat_answer
@@ -166,11 +172,17 @@ class BookFlight:
             if luggage_answer == "":
                 print("Field required.")
             elif luggage_answer in "yesYES":
-                PlaneTicket.current_price += 50
-                print("Luggage registered!")
-                break
+                if luggage_answer not in "eE":
+                    PlaneTicket.current_price += 50
+                    print("Luggage registered!")
+                    break
+                else:
+                    print("Sorry, that's not an answer.")
             elif luggage_answer in "noNO":
-                break
+                if luggage_answer not in "oO":
+                    break
+                else:
+                    print("Sorry, that's not an answer.")
             else:
                 print("Sorry, that's not an answer.")
         return luggage_answer
@@ -204,10 +216,10 @@ class BookFlight:
         seat = self.get_user_seat()
         luggage = self.get_user_luggage()
         date = self.get_user_date()
-        departure_time, gate = Database.read_dep_time(flight.upper())
+        departure_time, gate = develop_data_object.read_dep_time(flight.upper())
         price = PlaneTicket.current_price
         print("Your ticket has been generated. Thank you for picking us!")
-        Database.drop_seats(flight.upper())
+        develop_data_object.drop_seats(flight.upper())
         ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination, flight, gate)
         # number = ticket.number
         number = f"{random.choice(ascii_uppercase)}{load_json()}"
@@ -217,11 +229,7 @@ class BookFlight:
             number, seat, name, destination, date, flight, departure_time, gate
         )
         # updating the database with the information from the user
-        cursor.execute(
-            """INSERT INTO flights ("name", "destination", "cost", "ticket", "flight_nr", "gate") VALUES (?, ?, ?, ?, ?, ?)""",
-            (name, destination.title(), price, number, flight.upper(), gate)
-        )
-        connection.commit()
+        develop_data_object.update_db(name, destination, price, number, flight, gate)
         logging.info("Ticket generated.")
 
     def generate_pdf(
@@ -337,8 +345,8 @@ class CancelFlight:
             del_res = input(
                 "Please enter your ticket number to delete the reservation: "
             )
-            if Database.get_ticket_existence(del_res.upper()):
-                Database.undo_seats(del_res.upper())
+            if develop_data_object.get_ticket_existence(del_res.upper()):
+                develop_data_object.undo_seats(del_res.upper())
                 cursor.execute(
                     """DELETE FROM flights WHERE ticket == ?""", (del_res.upper(),)
                 )
@@ -417,12 +425,17 @@ class Database(BookFlight):
         self.connection = sqlite3.connect(path)
         self.cursor = self.connection.cursor()
 
-    @staticmethod
-    def read_database():
+    def update_db(self, name, destination, price, number, flight, gate):
+        """Method that updates the flights database with all the information from the user."""
+        self.cursor.execute(
+            """INSERT INTO flights ("name", "destination", "cost", "ticket", "flight_nr", "gate") VALUES (?, ?, ?, ?, ?, ?)""",
+            (name, destination.title(), price, number, flight.upper(), gate)
+        )
+        self.connection.commit()
+
+    def read_database(self):
         """Method that shows the booked flights."""
-        connection = sqlite3.connect(DB_PATH)
-        cursor = connection.cursor()
-        rows = cursor.execute(
+        rows = self.cursor.execute(
             """SELECT "name", "destination", "cost", "ticket", "flight_nr", "gate" FROM flights
             """
         )
@@ -433,35 +446,29 @@ class Database(BookFlight):
             )
 
 # staff only
-    @staticmethod
-    def add_flight():
+    def add_flight(self):
         """Method that adds a flight to the "flights" database containing
         destination, flight number, departure time and number of seats left
         - FOR STAFF ONLY."""
-        connection = sqlite3.connect(DB_PATH)
-        cursor = connection.cursor()
         destination = input("Destination: ")
         flight_number = input("Flight number: ")
         time = input("Departure time: ")
         seats = input("Number of seats: ")
         gate = input("Gate number: ")
-        cursor.execute(
+        self.cursor.execute(
             """INSERT INTO departures ("destination", "flight_number", "time", "seats ", "gate") VALUES (?, ?, ?, ?, ?)""",
             (destination.title(), flight_number, time, seats, gate),
         )
-        connection.commit()
+        self.connection.commit()
         logging.info("New flight added.")
 
-    @staticmethod
-    def read_flights(destination):
+    def read_flights(self, destination):
         """Method that reads from a database of flights a specific destination
         which the user chooses - method for "BOOK A FLIGHT OPTION" where it
         needs an argument - user input."""
-        connection = sqlite3.connect(DB_PATH)
-        cursor = connection.cursor()
         while True:
             if destination.lower() in DESTINATIONS_AND_PRICES.keys():
-                rows = cursor.execute(
+                rows = self.cursor.execute(
                     """SELECT * FROM departures WHERE "destination" is ?""",
                     (destination.title(),),
                 )
@@ -479,17 +486,14 @@ class Database(BookFlight):
                 f"{FROM}-> {dest}, flight number {flight_nr}, departure at {dep_time}, available seats {seats}, gate {gate}."
             )
 
-    @staticmethod
-    def read_flights_for_available():
+    def read_flights_for_available(self):
         """Method that reads from a database of flights a specific destination
         which the user chooses - method for "AVAILABLE FLIGHTS" option where it
         is static, doesn't need any arguments."""
-        connection = sqlite3.connect(DB_PATH)
-        cursor = connection.cursor()
         while True:
             destination = input("What destination interests you? ")
             if destination.lower() in DESTINATIONS_AND_PRICES.keys():
-                rows = cursor.execute(
+                rows = self.cursor.execute(
                     """SELECT * FROM departures WHERE "destination" is ?""",
                     (destination.title(),),
                 )
@@ -507,13 +511,10 @@ class Database(BookFlight):
                 f"{FROM}-> {dest}, flight number {flight_nr}, departure at {dep_time}, available seats {seats}, gate {gate}."
             )
 
-    @staticmethod
-    def read_numbers(flight_number, destination):
+    def read_numbers(self, flight_number, destination):
         """Method that checks from the database "flights" that certain flights 
         numbers are actually existing."""
-        connection = sqlite3.connect(DB_PATH)
-        cursor = connection.cursor()
-        rows = cursor.execute(
+        rows = self.cursor.execute(
             """SELECT EXISTS(SELECT 1 FROM departures WHERE flight_number = ? and destination = ?)""",
             (flight_number.upper(), destination),
         )
@@ -521,13 +522,10 @@ class Database(BookFlight):
         for row in rows:
             return row[0] == 1
 
-    @staticmethod
-    def get_ticket_existence(ticket):
+    def get_ticket_existence(self, ticket):
         """Method that returns bool if a specific ticket is in flights database
         in order to help the delete_reservation method to be accurate."""
-        connection = sqlite3.connect(DB_PATH)
-        cursor = connection.cursor()
-        rows = cursor.execute(
+        rows = self.cursor.execute(
             """SELECT EXISTS(SELECT 1 FROM flights WHERE ticket = ?)""",
             (ticket.upper(),),
         )
@@ -536,27 +534,21 @@ class Database(BookFlight):
             return row[0] == 1
 
 # two methods that are taking care of the seats value to be constantly updating
-    @staticmethod
-    def drop_seats(flight_number):
+    def drop_seats(self, flight_number):
         """ "Method that substitutes one seat for each booking in order to keep
         the "available seats" value updated."""
-        connection = sqlite3.connect(DB_PATH)
-        cursor = connection.cursor()
-        rows = cursor.execute(
+        self.cursor.execute(
             """UPDATE departures 
             SET "seats " = "seats " - 1 
             WHERE "flight_number" == ? """,
             (flight_number,),
         )
-        connection.commit()
+        self.connection.commit()
 
-    @staticmethod
-    def undo_seats(ticket_number):
+    def undo_seats(self, ticket_number):
         """Method that adds one seat for each deleted booking in order to keep
         the "available seats" value updated."""
-        connection = sqlite3.connect(DB_PATH)
-        cursor = connection.cursor()
-        rows = cursor.execute(
+        self.cursor.execute(
             """UPDATE departures
             SET "seats " = "seats " + 1 
             WHERE flight_number IN (
@@ -567,15 +559,12 @@ class Database(BookFlight):
             """,
             (ticket_number,),
         )
-        connection.commit()
+        self.connection.commit()
 
 # each flight has his own gate number
-    @staticmethod
-    def read_dep_time(flight_number: str) -> tuple:
+    def read_dep_time(self, flight_number: str) -> tuple:
         """Method that returns the departure time of a specific flight."""
-        connection = sqlite3.connect(DB_PATH)
-        cursor = connection.cursor()
-        rows = cursor.execute(
+        rows = self.cursor.execute(
             """SELECT time, gate FROM departures WHERE flight_number == ? 
             """,
             (flight_number,),
@@ -585,13 +574,10 @@ class Database(BookFlight):
             return time, gate
 
 # a while loop + this method should not let the user advance if there are 0 seats
-    @staticmethod
-    def check_seats(flight_number):
+    def check_seats(self, flight_number):
         """Method that returns a bool if a certain flight has no seat
         available."""
-        connection = sqlite3.connect(DB_PATH)
-        cursor = connection.cursor()
-        rows = cursor.execute(
+        rows = self.cursor.execute(
             """SELECT EXISTS (SELECT 1 FROM departures WHERE "seats " == 0 and
             "flight_number" == ?)""", (flight_number, )
         )
@@ -722,3 +708,6 @@ def staff_option_two():
                     break
                 else:
                     print("Not an answer.")
+
+
+develop_data_object = Database(DB_PATH)
