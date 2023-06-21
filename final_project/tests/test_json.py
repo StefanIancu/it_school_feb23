@@ -10,6 +10,6 @@ class TestJSON(TestCase):
         open_mock.load_json = io.StringIO("json loaded.")
 
     def test_reset_json(self, open_mock):
-        open_mock.return_value = io.StringIO("json reset")
+        open_mock.reset_json = io.StringIO("json reset.")
 
     # def test_another(self):
