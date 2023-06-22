@@ -678,7 +678,7 @@ def del_file(path: str):
     os.remove(path)
     print("File deleted.")
 
-# function that takes the user through the authentication process
+# function that takes the staff-user through the authentication process
 def authenticate():
     while True:
         username = input("Please enter your username: ")
