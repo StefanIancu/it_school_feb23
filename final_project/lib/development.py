@@ -14,6 +14,7 @@ from datetime import date
 from pathlib import Path
 from string import ascii_uppercase, punctuation
 
+
 from fpdf import FPDF
 
 # paths to certain dirs
@@ -74,6 +75,12 @@ staff_accounts = { "stefan.iancu": "12345",
 # logging config to store useful information 
 logging.basicConfig(filename=f"{UTILS}/log.log", level=logging.DEBUG,
                     format="%(asctime)s [%(levelname)s] %(message)s")
+
+# credentials for the smtp server and email
+EMAIL_PASS = "fshbrcqyywpavsbd"
+EMAIL_USER = "pythontest.odyssey2001@gmail.com"
+EMAIL_SERVER = "smtp.gmail.com"
+EMAIL_SERVER_PORT = 465
 
 # creating a class for each menu option. each class has certain methods that
 # work together (doc-string can be found for each method)
@@ -718,13 +725,7 @@ def staff_option_two():
                 else:
                     print("Not an answer.")
 
-# credentials for the smtp server and email
-EMAIL_PASS = "fshbrcqyywpavsbd"
-EMAIL_USER = "pythontest.odyssey2001@gmail.com"
-EMAIL_SERVER = "smtp.gmail.com"
-EMAIL_SERVER_PORT = 465
-
-# function that sends the generated ticket via email to the user
+# sends the generated ticket via email to the user
 def send_email(user_name, ticket):
 
     user_email = input("Let us know your email so we can forward your boarding pass: ")
@@ -734,19 +735,26 @@ def send_email(user_name, ticket):
     message["From"] = EMAIL_USER
     message["To"] = user_email
 
-    html = f"""
+    html_base = f"""
     <html>
-        <body>
-            <h2>Hi {user_name}! Thank you for booking with us.</h2>
-            <p>enter text here</p>
-            <p>enter text here</p>
-            <p>enter text here</p>
-            <p>enter text here</p>
-            <p>enter text here</p>
-        </body>
+    <body>
+        <h2>Hello {user_name}!</h2>
+        <h3>You will find your boarding pass attached below. See you on board soon!</h3>
+
+        <p>Please try to arrive at the gate with a minimum of two hours before boarding.</p>
+        <p>Have both your boarding pass out and a form of ID - either your driver's license or your passport (it must be your passport if you're heading out of the country) - readily available.</p>
+        <p>A TSA agent will check your boarding pass to your ID, and then you must successfully pass through the security check.</p>
+
+        <p>*First class always boards the plane first, followed by business class and people with disabilities or infants.</p>
+
+        <p>For any details regarding the reservation please email as at support@flyhome.com</p>
+        <p>Have the best flight,</p>
+        <p>FlyHome Team</p>
+    </body>
     </html>
     """
-    part2 = MIMEText(html, "html")
+    
+    part2 = MIMEText(html_base, "html")
 
     ticket_path = f"{TICKETS}/planeticket_{ticket.upper()}.pdf"
 
@@ -763,7 +771,7 @@ def send_email(user_name, ticket):
     server.login(EMAIL_USER, EMAIL_PASS)
     server.sendmail(EMAIL_USER, user_email, message.as_string())
 
-
+# that returns the user's preference to get the pdf on email
 def check_email() -> bool:
     while True: 
         ask_email = input("Would you like to receive the boarding pass on email? [y/n]")
@@ -774,6 +782,7 @@ def check_email() -> bool:
                 print("That's not an answer.")
         elif ask_email in "noNO":
             if ask_email not in "oO":
+                print("Got it, we won't bother you.")
                 return False
             else:
                 print("That's not an answer.")
