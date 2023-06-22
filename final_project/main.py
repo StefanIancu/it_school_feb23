@@ -1,24 +1,18 @@
 import sys
 from abc import ABC, abstractmethod
 from typing import List
-import getpass
 
 from lib.development import (
-    ROOT,
     DATE,
     DB_PATH,
     BookFlight,
     CancelFlight,
     Database,
     Help,
-    PlaneTicket,
     WhereToGo,
-    staff_accounts,
     authenticate,
-    DESTINATIONS_AND_PRICES,
     staff_option_two,
-    staff_option_one,
-    send_email
+    staff_option_one
 )
 
 

@@ -186,11 +186,13 @@ class BookFlight:
                 if luggage_answer not in "eE":
                     PlaneTicket.current_price += 50
                     print("Luggage registered!")
+                    luggage_answer = "Booked"
                     break
                 else:
                     print("Sorry, that's not an answer.")
             elif luggage_answer in "noNO":
                 if luggage_answer not in "oO":
+                    luggage_answer = "Unbooked"
                     break
                 else:
                     print("Sorry, that's not an answer.")
@@ -231,7 +233,7 @@ class BookFlight:
         price = PlaneTicket.current_price
         print("Your ticket has been generated. Thank you for picking us!")
         develop_data_object.drop_seats(flight.upper())
-        ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination, flight, gate)
+        # ticket = PlaneTicket(PlaneTicket.number, name, seat, date, destination, flight, gate)
         # number = ticket.number
         number = f"{random.choice(ascii_uppercase)}{load_json()}"
         number_json = load_json()
@@ -243,7 +245,7 @@ class BookFlight:
         develop_data_object.update_db(name, destination, price, number, flight, gate)
         logging.info("Ticket generated.")
         if check_email():
-            send_email(name, number)
+            send_email(name, number, date, price, seat, luggage, destination.title())
             logging.info("Email sent.")
             print("Your ticket has been sent.")
 
@@ -616,14 +618,14 @@ class Database(BookFlight):
             )
             for row in rows:
                 number1, avg1, sum1 = row
-                print(f"Total number of purchased tickets for {destination.title()} is {number1}, with the average cost of {avg1}€. Income generated {sum1}€.")
+                print(f"Total number of purchased tickets for {destination.title()} is {number1}, with the average cost of {round(avg1)}€. Income generated {sum1}€.")
         else:
             rows = cursor.execute(
                 """SELECT count(ticket), avg(cost), sum(cost)from flights"""
             )
             for row in rows:
                 number, avg, sum = row
-                print(f"Total number of purchased tickets {number}, with the average cost of {avg}€. Income generated {sum}€.")
+                print(f"Total number of purchased tickets {number}, with the average cost of {round(avg)}€. Income generated {sum}€.")
         
 # check flights stats
     @staticmethod
@@ -726,7 +728,7 @@ def staff_option_two():
                     print("Not an answer.")
 
 # sends the generated ticket via email to the user
-def send_email(user_name, ticket):
+def send_email(user_name, ticket, date, price, seat, luggage, destination):
 
     user_email = input("Let us know your email so we can forward your boarding pass: ")
 
@@ -738,7 +740,7 @@ def send_email(user_name, ticket):
     html_base = f"""
     <html>
     <body>
-        <h2>Hello {user_name}!</h2>
+        <h2>Hello, {user_name}!</h2>
         <h3>You will find your boarding pass attached below. See you on board soon!</h3>
 
         <p>Please try to arrive at the gate with a minimum of two hours before boarding.</p>
@@ -746,8 +748,18 @@ def send_email(user_name, ticket):
         <p>A TSA agent will check your boarding pass to your ID, and then you must successfully pass through the security check.</p>
 
         <p>*First class always boards the plane first, followed by business class and people with disabilities or infants.</p>
+        <p>In case you didn't reserve a seat, one will be automatically generated at the check-in.</p>
 
-        <p>For any details regarding the reservation please email as at support@flyhome.com</p>
+        <h4>RESERVATION SUMMARY</h4>
+        <ul>
+        <li>Destination........{destination}</li>
+        <li>Date.........{date}.{DATE}</li>
+        <li>Seat.........{seat}</li>
+        <li>Luggage......{luggage}</li>
+        <li><b>TOTAL.........€{price}</b></li>
+        </ul>
+
+        <p>For any details regarding the reservation please email us at support@flyhome.com</p>
         <p>Have the best flight,</p>
         <p>FlyHome Team</p>
     </body>
@@ -771,7 +783,7 @@ def send_email(user_name, ticket):
     server.login(EMAIL_USER, EMAIL_PASS)
     server.sendmail(EMAIL_USER, user_email, message.as_string())
 
-# that returns the user's preference to get the pdf on email
+# returns the user's preference to get the pdf on email or not
 def check_email() -> bool:
     while True: 
         ask_email = input("Would you like to receive the boarding pass on email? [y/n]")
