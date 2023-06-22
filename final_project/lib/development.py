@@ -5,7 +5,11 @@ import json
 import os
 import getpass
 import logging
+import smtplib
 
+from email.mime.application import MIMEApplication
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import date
 from pathlib import Path
 from string import ascii_uppercase, punctuation
@@ -231,6 +235,10 @@ class BookFlight:
         # updating the database with the information from the user
         develop_data_object.update_db(name, destination, price, number, flight, gate)
         logging.info("Ticket generated.")
+        if check_email():
+            send_email(name, number)
+            logging.info("Email sent.")
+            print("Your ticket has been sent.")
 
     def generate_pdf(
         self, number, seat, name, destination, date, flight_number, departure_time, gate
@@ -634,6 +642,7 @@ class Database(BookFlight):
                 average, total = row
                 print(f"The total numbers of available seats is {total} with an average of {round(average)} per flight.")
 
+develop_data_object = Database(DB_PATH)
 
 # defined three json functions: 
 # save_json is overwriting the json.count file with the current ticket number
@@ -709,5 +718,64 @@ def staff_option_two():
                 else:
                     print("Not an answer.")
 
+# credentials for the smtp server and email
+EMAIL_PASS = "fshbrcqyywpavsbd"
+EMAIL_USER = "pythontest.odyssey2001@gmail.com"
+EMAIL_SERVER = "smtp.gmail.com"
+EMAIL_SERVER_PORT = 465
 
-develop_data_object = Database(DB_PATH)
+# function that sends the generated ticket via email to the user
+def send_email(user_name, ticket):
+
+    user_email = input("Let us know your email so we can forward your boarding pass: ")
+
+    message = MIMEMultipart("alternative")
+    message["Subject"] = "Your reservation at FlyHome"
+    message["From"] = EMAIL_USER
+    message["To"] = user_email
+
+    html = f"""
+    <html>
+        <body>
+            <h2>Hi {user_name}! Thank you for booking with us.</h2>
+            <p>enter text here</p>
+            <p>enter text here</p>
+            <p>enter text here</p>
+            <p>enter text here</p>
+            <p>enter text here</p>
+        </body>
+    </html>
+    """
+    part2 = MIMEText(html, "html")
+
+    ticket_path = f"{TICKETS}/planeticket_{ticket.upper()}.pdf"
+
+    with open(ticket_path, "rb") as fin:
+        opened_ticket = fin.read()
+    
+    attached_file = MIMEApplication(opened_ticket, _subtype = "pdf")
+    attached_file.add_header("content-disposition", "attachment", filename=f"planeticket_{ticket.upper()}.pdf")
+
+    message.attach(part2)
+    message.attach(attached_file)
+
+    server = smtplib.SMTP_SSL(EMAIL_SERVER, EMAIL_SERVER_PORT)
+    server.login(EMAIL_USER, EMAIL_PASS)
+    server.sendmail(EMAIL_USER, user_email, message.as_string())
+
+
+def check_email() -> bool:
+    while True: 
+        ask_email = input("Would you like to receive the boarding pass on email? [y/n]")
+        if ask_email in "yesYES":
+            if ask_email not in "eEsS":
+                return True
+            else:
+                print("That's not an answer.")
+        elif ask_email in "noNO":
+            if ask_email not in "oO":
+                return False
+            else:
+                print("That's not an answer.")
+        else:
+            print("Please input the correct answer.")

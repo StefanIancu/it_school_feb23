@@ -17,7 +17,8 @@ from lib.development import (
     authenticate,
     DESTINATIONS_AND_PRICES,
     staff_option_two,
-    staff_option_one
+    staff_option_one,
+    send_email
 )
 
 
