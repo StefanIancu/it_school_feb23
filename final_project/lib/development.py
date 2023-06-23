@@ -800,3 +800,4 @@ def check_email() -> bool:
                 print("That's not an answer.")
         else:
             print("Please input the correct answer.")
+
