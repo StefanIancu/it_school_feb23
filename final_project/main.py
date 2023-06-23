@@ -5,6 +5,7 @@ from typing import List
 from lib.development import (
     DATE,
     DB_PATH,
+    User,
     BookFlight,
     CancelFlight,
     Database,
@@ -162,12 +163,15 @@ class ExitItem(MenuItem):
 # created a demo object type BookFlight in order to access the "generate ticket" method
 demo = BookFlight("demo")
 
-# created demo object type Database to access certain methods
+# created demo object type Database to access certain methods from the class
 database = Database(DB_PATH)
+
+# created a demo object type User to access methods from the class
+user = User("human")
 
 # here are all the menu options. their names can be changed anytime as long as
 # they're strings
-main_menu = MenuUserChoice("Welcome to FlyHome!")
+main_menu = MenuUserChoice(f"Welcome to FlyHome!")
 main_menu.add_choice(FindPlane("Book a flight"))
 main_menu.add_choice(AvailableFlights("Available flights"))
 main_menu.add_choice(MyFlights("See your reservations"))
@@ -179,5 +183,6 @@ main_menu.add_choice(ExitItem("Exit"))
 
 
 # continuous execution until the user decides to exit the program
+user.login_menu()
 while True:
     main_menu.execute()

@@ -6,6 +6,7 @@ import os
 import getpass
 import logging
 import smtplib
+import sys
 
 from hashlib import blake2b
 from email.mime.application import MIMEApplication
@@ -684,8 +685,8 @@ class User:
             print("Passwords don't match.")
 
     def user_authenticate(self):
-        username = input("Username: ")
-        password = getpass.getpass("Password: ")
+        username = input("Please enter your username: ")
+        password = getpass.getpass("Please enter your password: ")
         encode = blake2b(digest_size=15)
         hash = password.encode()
         updated = encode.update(hash)
@@ -711,16 +712,21 @@ class User:
     def login_menu(self):
 
         while True:
-            print("LOGIN")
-            print("1. Login")
-            print("2. Sign-up")
-            choice = input("Choose an option: ")
+            print(f"FlyHome V.1.0\n")
+            print("1 - Login")
+            print("2 - Sign-up")
+            print("3 - Exit")
+            choice = input("Please choose an item from the list: ")
             if choice == "1":
-                print("1")
+                self.user_authenticate()
+                break
             elif choice == "2":
-                print("2")
+                self.user_signup()
+                break
+            elif choice == "3":
+                sys.exit(0)
             else:
-                print("No such thing.")
+                print("Please choose an item within the range above.")
 
 
 # defined three json functions: 
