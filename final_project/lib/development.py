@@ -667,9 +667,16 @@ class User:
         return self.__category
     
     def user_signup(self):
-        username = input("Username: ")
-        password = getpass.getpass("Choose a password: ")
-        confirmed_password = getpass.getpass("Confirm your password: ")
+        """Takes the user through the registration process. Doesn't let the user choose
+        a username that already exists"""
+        while True:
+            username = input("Please choose an username: ")
+            if self.check_username(username):
+                print("Username already exists. Please choose another.")
+            else:
+                break
+        password = getpass.getpass("Please choose a password: ")
+        confirmed_password = getpass.getpass("Please confirm your password: ")
 
         if confirmed_password == password:
             encode = blake2b(digest_size=15)
@@ -681,38 +688,52 @@ class User:
                         (username, final))
             connection.commit()
             print("Registered successful.")
+            logging.info(f"{username} registered.")
         else:
             print("Passwords don't match.")
 
     def user_authenticate(self):
-        username = input("Please enter your username: ")
-        password = getpass.getpass("Please enter your password: ")
-        encode = blake2b(digest_size=15)
-        hash = password.encode()
-        updated = encode.update(hash)
-        final = encode.hexdigest()
-
-        if self.check_passwords(username, final):
-            print("Access granted.")
-            try:
-                with open(USER_PATH, "w") as fout:
-                    json.dump(username, fout, indent=4)
-            except OSError as err:
-                print(err)
-        else:
-            print("Access denied.")
+        """Takes the user through the authentication process and stores the username
+        in a temporary json file in order to use it to display info only for that user."""
+        while True:
+            username = input("Please enter your username: ")
+            password = getpass.getpass("Please enter your password: ")
+            encode = blake2b(digest_size=15)
+            hash = password.encode()
+            updated = encode.update(hash)
+            final = encode.hexdigest()
+            if self.check_passwords(username, final):
+                print("Access granted.")
+                logging.info(f"{username} logged in.")
+                try:
+                    with open(USER_PATH, "w") as fout:
+                        json.dump(username, fout, indent=4)
+                except OSError as err:
+                    print(err)
+                break
+            else:
+                print("Access denied.")
     
     def check_passwords(self, username, password):
+        """Check if the credentials are matching."""
         rows = cursor.execute("""SELECT EXISTS(SELECT 1 FROM users where "username" == ? and "password" == ?)""",
                        (username, password))
         
         for row in rows:
             return row[0] == 1
+        
+    def check_username(self, username):
+        """Checks if the chose username exists or not."""
+        rows = cursor.execute("""SELECT EXISTS(SELECT 1 FROM users where "username" == ?)""",
+                       (username, ))
 
+        for row in rows:
+            return row[0] == 1
+        
     def login_menu(self):
-
+        """Prints the login menu in a while loop."""
         while True:
-            print(f"FlyHome V.1.0\n")
+            print("{:-^50}".format("FlyHome V.1.0"))
             print("1 - Login")
             print("2 - Sign-up")
             print("3 - Exit")
