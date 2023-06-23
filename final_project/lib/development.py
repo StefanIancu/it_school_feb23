@@ -687,7 +687,7 @@ class User:
             cursor.execute("""INSERT INTO users ("username", "password") VALUES (?, ?)""",
                         (username, final))
             connection.commit()
-            print("Registered successful.")
+            print("Registered successful - redirected to the login screen.")
             logging.info(f"{username} registered.")
         else:
             print("Passwords don't match.")
@@ -743,6 +743,7 @@ class User:
                 break
             elif choice == "2":
                 self.user_signup()
+                self.user_authenticate()
                 break
             elif choice == "3":
                 sys.exit(0)
