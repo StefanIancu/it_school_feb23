@@ -7,6 +7,7 @@ import getpass
 import logging
 import smtplib
 
+from hashlib import blake2b
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -23,6 +24,7 @@ DB_PATH = ROOT / "flights.db"
 UTILS = ROOT.parent / "utils"
 TICKETS = ROOT.parent / "tickets"
 DATA_STORE_PATH = ROOT / "count.json"
+USER_PATH = ROOT / "user.json"
 
 # establishing a database connection
 connection = sqlite3.connect(DB_PATH)
@@ -652,6 +654,74 @@ class Database(BookFlight):
                 print(f"The total numbers of available seats is {total} with an average of {round(average)} per flight.")
 
 develop_data_object = Database(DB_PATH)
+
+
+class User:
+
+    def __init__(self, category):
+        self.__category = category
+
+    @property
+    def category(self):
+        return self.__category
+    
+    def user_signup(self):
+        username = input("Username: ")
+        password = getpass.getpass("Choose a password: ")
+        confirmed_password = getpass.getpass("Confirm your password: ")
+
+        if confirmed_password == password:
+            encode = blake2b(digest_size=15)
+            hash = confirmed_password.encode()
+            updated = encode.update(hash)
+            final = encode.hexdigest()
+            
+            cursor.execute("""INSERT INTO users ("username", "password") VALUES (?, ?)""",
+                        (username, final))
+            connection.commit()
+            print("Registered successful.")
+        else:
+            print("Passwords don't match.")
+
+    def user_authenticate(self):
+        username = input("Username: ")
+        password = getpass.getpass("Password: ")
+        encode = blake2b(digest_size=15)
+        hash = password.encode()
+        updated = encode.update(hash)
+        final = encode.hexdigest()
+
+        if self.check_passwords(username, final):
+            print("Access granted.")
+            try:
+                with open(USER_PATH, "w") as fout:
+                    json.dump(username, fout, indent=4)
+            except OSError as err:
+                print(err)
+        else:
+            print("Access denied.")
+    
+    def check_passwords(self, username, password):
+        rows = cursor.execute("""SELECT EXISTS(SELECT 1 FROM users where "username" == ? and "password" == ?)""",
+                       (username, password))
+        
+        for row in rows:
+            return row[0] == 1
+
+    def login_menu(self):
+
+        while True:
+            print("LOGIN")
+            print("1. Login")
+            print("2. Sign-up")
+            choice = input("Choose an option: ")
+            if choice == "1":
+                print("1")
+            elif choice == "2":
+                print("2")
+            else:
+                print("No such thing.")
+
 
 # defined three json functions: 
 # save_json is overwriting the json.count file with the current ticket number
