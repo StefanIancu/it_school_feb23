@@ -903,6 +903,7 @@ def check_email() -> bool:
         else:
             print("Please input the correct answer.")
 
+# creates a dir for every flight and destination for a better management of tickets
 def create_destination_dir(destination, flight_number):
     folder_path = TICKETS / f"{destination.title()}" / f"{flight_number.upper()}"
     try:
