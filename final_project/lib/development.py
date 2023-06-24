@@ -257,6 +257,7 @@ class BookFlight:
     ):
         """Method that takes some user information and fills a PDF file
         with the specific information."""
+        create_destination_dir(destination, flight_number)
         pdf = FPDF()
         pdf.add_page(orientation="l")
         pdf.set_font("Arial", size=15)
@@ -293,7 +294,7 @@ class BookFlight:
         )
         pdf.cell(100, 10, txt="**No refund available for this flight.", ln=22, align="")
 
-        pdf.output(f"{TICKETS}/planeticket_{number}.pdf")
+        pdf.output(f"{TICKETS}/{destination.title()}/{flight_number.upper()}/planeticket_{number}.pdf")
 
 
 # the user has the option to see the destinations and their starting prices
@@ -902,3 +903,10 @@ def check_email() -> bool:
         else:
             print("Please input the correct answer.")
 
+def create_destination_dir(destination, flight_number):
+    folder_path = TICKETS / f"{destination.title()}" / f"{flight_number.upper()}"
+    try:
+        folder_path.mkdir(exist_ok=True, parents=True)
+    except OSError as err:
+        print(err)
+            
