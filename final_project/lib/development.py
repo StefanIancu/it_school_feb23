@@ -447,18 +447,21 @@ class Database(BookFlight):
 
     def update_db(self, name, destination, price, number, flight, gate):
         """Method that updates the flights database with all the information from the user."""
+        with open(USER_PATH, "r") as fin:
+            user = json.load(fin)
         self.cursor.execute(
-            """INSERT INTO flights ("name", "destination", "cost", "ticket", "flight_nr", "gate") VALUES (?, ?, ?, ?, ?, ?)""",
-            (name, destination.title(), price, number, flight.upper(), gate)
+            """INSERT INTO flights ("name", "destination", "cost", "ticket", "flight_nr", "gate", "user") VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (name, destination.title(), price, number, flight.upper(), gate, user)
         )
         self.connection.commit()
 
     def read_database(self):
         """Method that shows the booked flights."""
+        with open(USER_PATH,  "r") as fin:
+            user = json.load(fin)
         rows = self.cursor.execute(
             """SELECT "name", "destination", "cost", "ticket", "flight_nr", "gate" FROM flights
-            """
-        )
+            where user ==?""", (user,))
         for row in rows:
             name, destination, cost, ticket, flight, gate = row
             print(
@@ -582,7 +585,7 @@ class Database(BookFlight):
         self.connection.commit()
 
 # each flight has his own gate number
-    def read_dep_time(self, flight_number: str) -> tuple:
+    def read_dep_time(self, flight_number: str) -> tuple: # type: ignore
         """Method that returns the departure time of a specific flight."""
         rows = self.cursor.execute(
             """SELECT time, gate FROM departures WHERE flight_number == ? 
@@ -794,8 +797,8 @@ def authenticate():
 # sub-menu for the "Staff only" option in main
 def staff_option_one():
     while True:
-            print("1 - Show general flight statistics")
-            print("2 - Show particular flight statistics")
+            print("1 - General flight statistics")
+            print("2 - Particular flight statistics")
             reports1 = int(input("Choose an option: "))
             if reports1 == 1:
                 Database.check_flights_stats()
@@ -811,8 +814,8 @@ def staff_option_one():
 #sub-menu for "Staff only" option in main
 def staff_option_two():
     while True:
-            print("1 - Show general ticket statistics")
-            print("2 - Show particular ticket statistics")
+            print("1 - General ticket statistics")
+            print("2 - Particular ticket statistics")
             reports1 = int(input("Choose an option: "))
             if reports1 == 1:
                 Database.check_cost_stats()
