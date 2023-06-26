@@ -15,6 +15,8 @@ from email.mime.multipart import MIMEMultipart
 from datetime import date
 from pathlib import Path
 from string import ascii_uppercase, punctuation
+from datetime import datetime
+from time import strftime
 
 
 from fpdf import FPDF
@@ -737,7 +739,9 @@ class User:
     def login_menu(self):
         """Prints the login menu in a while loop."""
         while True:
-            print("{:-^50}".format("FlyHome V.1.0"))
+            print("{:-^50}".format("FlyHome"))
+            print("We take you back home...or pretty far away from it!")
+            print("")
             print("1 - Login")
             print("2 - Sign-up")
             print("3 - Exit")
@@ -782,21 +786,25 @@ def del_file(path: str):
 
 # function that takes the staff-user through the authentication process
 def authenticate():
+    """Asks the staff-user for a password and username in order to access the 
+    "Staff only" secondary menu."""
     while True:
-        username = input("Please enter your username: ")
+        username = input("Please enter your staff-username: ")
         if username in list(staff_accounts.keys()):
-            password = getpass.getpass("Please enter your password: ")
+            password = getpass.getpass("Please enter your staff-password: ")
             if password == staff_accounts.get(username):
                 print("Access granted.")
-                logging.info(f"{username} connected.")
+                logging.info(f"{username} connected - STAFF.")
                 break
             else:
                 print("Access denied - please try again.")
         else:
-            print("User not found.")
+            print("Staff-user not found.")
 
 # sub-menu for the "Staff only" option in main
 def staff_option_one():
+    """Method for the "Staff only" screen that represents the first option. 
+    Works based on the database and returns flight statistics for the staff."""
     while True:
             print("1 - General flight statistics")
             print("2 - Particular flight statistics")
@@ -814,6 +822,8 @@ def staff_option_one():
 
 #sub-menu for "Staff only" option in main
 def staff_option_two():
+    """Method for the "Staff only" screen that represents the second option. 
+    Works based on the database and returns ticket statistics for the staff."""
     while True:
             print("1 - General ticket statistics")
             print("2 - Particular ticket statistics")
@@ -831,6 +841,8 @@ def staff_option_two():
 
 # sends the generated ticket via email to the user
 def send_email(user_name, ticket, date, price, seat, luggage, destination):
+    """Stores a html template, fills it with certain arguments and sends the 
+    email to the user along with the boarding pass generated - if desired."""
 
     user_email = input("Let us know your email so we can forward your boarding pass: ")
 
@@ -842,7 +854,7 @@ def send_email(user_name, ticket, date, price, seat, luggage, destination):
     html_base = f"""
     <html>
     <body>
-        <h2>Hello, {user_name}!</h2>
+        <h2>Hello, {user_name},</h2>
         <h3>You will find your boarding pass attached below. See you on board soon!</h3>
 
         <p>Please try to arrive at the gate with a minimum of two hours before boarding.</p>
@@ -887,6 +899,7 @@ def send_email(user_name, ticket, date, price, seat, luggage, destination):
 
 # returns the user's preference to get the pdf on email or not
 def check_email() -> bool:
+    """Asks the user if they want to receive the boarding pass on email."""
     while True: 
         ask_email = input("Would you like to receive the boarding pass on email? [y/n]")
         if ask_email in "yesYES":
@@ -911,3 +924,42 @@ def create_destination_dir(destination, flight_number):
     except OSError as err:
         print(err)
             
+
+class CheckIn:
+
+    def __init__(self, title):
+        self.__title = title
+
+    @property
+    def title(self):
+        return self.__title
+    
+    #preferable to break this in two functions. one with the checking of the date 
+    #and this just to take input for the check-in and proceed with it
+    def self_check_in(self):
+        present_time = strftime("%d.%m, %H:%M")
+        start_time = datetime.strptime(present_time, "%d.%m, %H:%M")
+        month = now.month
+        develop_data_object.read_database()
+        print("NOTE: Check-in only available 24h or less before flight time. ")
+        while True:
+            ticket = input("Enter ticket number for check-in: ")
+            if develop_data_object.get_ticket_existence(ticket):
+                flight = input("Please confirm your flight number: ")
+                departure_time = develop_data_object.read_dep_time(flight)[0]
+                end_time = datetime.strptime(f"30.0{month}, {departure_time}", "%d.%m, %H:%M")
+                delta = start_time - end_time
+                sec = delta.total_seconds()
+                hours = sec / (60 * 60)
+                if hours <= 24:
+                    print("Check-in completed.")
+                    break
+                else:
+                    print("Check-in closed.")
+            else:
+                print(f"Ticket {ticket} doesn't exist.")
+
+
+check = CheckIn("demo")
+
+check.self_check_in()
