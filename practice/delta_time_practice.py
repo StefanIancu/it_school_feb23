@@ -20,3 +20,5 @@ hours = round(sec / (60 * 60))
 print(f"Diferenta dintre {now2} si {luna}, {zbor} este de {hours} ore.")
 print(hours <= 24)
 
+
+DATE = strftime("%m.%y")
