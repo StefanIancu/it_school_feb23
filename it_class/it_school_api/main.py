@@ -1,5 +1,5 @@
 from typing import Union, Dict, List
-from fastapi import FastAPI
+from fastapi import FastAPI, BackgroundTasks
 from fastapi.exceptions import HTTPException
 from schemas import GreetResponse, Course
 from datetime import datetime
@@ -29,7 +29,7 @@ def read_root():
             }
 
 @app.get("/hello/{name}")
-def greet_user(name: str) -> GreetResponse:
+def greet_user(name: str, bg_tasks: BackgroundTasks) -> GreetResponse:
     """Get a greeting message and user name."""
     logging.info("Hello method called.")
     return GreetResponse(greet_msg="Hello", name=name.title())
