@@ -764,7 +764,7 @@ class User:
             print("{:-^50}".format("FlyHome"))
             print("We take you back home...or pretty far away from it!")
             print("")
-            print("1 - Login")
+            print("1 - Log in")
             print("2 - Sign-up")
             print("3 - Exit")
             choice = input("Please choose an item from the list: ")

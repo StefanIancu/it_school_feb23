@@ -156,7 +156,7 @@ class MenuUserChoice(MenuItem):
 
 class ExitItem(MenuItem):
     def execute(self):
-        print("Program closed.")
+        print("Program closed. Thank you for choosing us.")
         sys.exit(0)
 
 
