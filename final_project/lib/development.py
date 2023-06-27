@@ -51,7 +51,7 @@ DESTINATIONS_AND_PRICES = {
 # "now" variable is used to input the date (month, year) on the ticket. the default
 # will always be the present month/year
 now = date.today()
-DATE = f"{now.month}.{now.year}"
+DATE = strftime("%m.%y")
 
 # "FROM" constant stands for the departure location, can be changed anytime
 FROM = "Bucharest OTP"
@@ -214,7 +214,10 @@ class BookFlight:
             if user_date.isdigit():
                 user_date = int(user_date)
                 if 0 < user_date <= 31:
-                    break
+                    if check.check_date(user_date):
+                        break
+                    else:
+                        print("Cannot choose a date from past.")
                 else:
                     print("Date must be between 1 and 31.")
             else:
@@ -250,7 +253,7 @@ class BookFlight:
         develop_data_object.update_db(name, destination, price, number, flight, gate)
         logging.info("Ticket generated.")
         if check_email():
-            send_email(name, number, date, price, seat, luggage, destination.title())
+            send_email(name, number, date, price, seat, luggage, destination.title(), flight)
             logging.info("Email sent.")
             print("Your ticket has been sent.")
 
@@ -376,7 +379,7 @@ class CancelFlight:
                 connection.commit()
                 logging.warning("Reservation deleted.")
                 try:
-                    del_file(f"{TICKETS}/planeticket_{del_res.upper()}.pdf")
+                    del_file(f"planeticket_{del_res.upper()}.pdf")
                 except OSError as err:
                     print(err)
                 else:    
@@ -780,9 +783,12 @@ def reset_json():
 
 # function that deletes the pdf file generated after the reservation has been 
 # cancelled
-def del_file(path: str):
-    os.remove(path)
-    print("File deleted.")
+def del_file(ticket: str):
+    for dirpath, dir, files in os.walk(TICKETS):
+        for _file in files:
+            if _file == ticket:  
+                os.remove(os.path.join(dirpath, _file))
+                print("File deleted.")
 
 # function that takes the staff-user through the authentication process
 def authenticate():
@@ -840,7 +846,7 @@ def staff_option_two():
                     print("Not an answer.")
 
 # sends the generated ticket via email to the user
-def send_email(user_name, ticket, date, price, seat, luggage, destination):
+def send_email(user_name, ticket, date, price, seat, luggage, destination, flight_number):
     """Stores a html template, fills it with certain arguments and sends the 
     email to the user along with the boarding pass generated - if desired."""
 
@@ -854,7 +860,7 @@ def send_email(user_name, ticket, date, price, seat, luggage, destination):
     html_base = f"""
     <html>
     <body>
-        <h2>Hello, {user_name},</h2>
+        <h2>Hello {user_name},</h2>
         <h3>You will find your boarding pass attached below. See you on board soon!</h3>
 
         <p>Please try to arrive at the gate with a minimum of two hours before boarding.</p>
@@ -862,7 +868,7 @@ def send_email(user_name, ticket, date, price, seat, luggage, destination):
         <p>A TSA agent will check your boarding pass to your ID, and then you must successfully pass through the security check.</p>
 
         <p>*First class always boards the plane first, followed by business class and people with disabilities or infants.</p>
-        <p>In case you didn't reserve a seat, one will be automatically generated at the check-in.</p>
+        <p>In case you didn't reserve a seat, one will be automatically assigned at the check-in.</p>
 
         <h4>RESERVATION SUMMARY</h4>
         <ul>
@@ -882,7 +888,7 @@ def send_email(user_name, ticket, date, price, seat, luggage, destination):
     
     part2 = MIMEText(html_base, "html")
 
-    ticket_path = f"{TICKETS}/planeticket_{ticket.upper()}.pdf"
+    ticket_path = f"{TICKETS}/{destination.title()}/{flight_number.upper()}/planeticket_{ticket}.pdf"
 
     with open(ticket_path, "rb") as fin:
         opened_ticket = fin.read()
@@ -959,7 +965,45 @@ class CheckIn:
             else:
                 print(f"Ticket {ticket} doesn't exist.")
 
+    def check_date(self, day=None, flight=None):
+        """Method that checks if a certain date is present-future available and 
+        doesn't let the user to advance if the date it's in the past. """
+        if day == None:
+            day = int(input("Choose a date: "))
 
-check = CheckIn("demo")
+        if flight != None:
+            present_time = strftime("%d.%m.%y, %H:%M")
+            start_time = datetime.strptime(present_time, "%d.%m.%y, %H:%M")
+            departure_time = develop_data_object.read_dep_time(flight)[0]
+            end_time = datetime.strptime(f"{day}.{DATE}, {departure_time}", "%d.%m.%y, %H:%M")
 
-check.self_check_in()
+            delta = end_time - start_time
+            sec = delta.total_seconds()
+            hours = sec / (60 * 60)
+
+            if hours > 24:
+                print(f"Diferenta dintre {day}.{DATE}, {departure_time} si {start_time} este de {hours} ore.")
+            elif hours < 0:
+                print(f"Scuze, zborul e in trecut =  au trecut {hours} ore.")
+            elif hours <= 24:
+                print(f"Corect, mai sunt {hours} ore pana la zbor.") 
+        else:
+            present_time = strftime("%d.%m.%y")
+            start_time = datetime.strptime(present_time, "%d.%m.%y")
+            compare_time = datetime.strptime(f"{day}.{DATE}", "%d.%m.%y")
+
+            delta = compare_time - start_time
+            sec = delta.total_seconds()
+            hours = sec / (60 * 60)
+
+            return True if hours >= 0 else False
+
+
+check = CheckIn("title")
+
+# for dirpath, dir, files in os.walk(TICKETS):
+#     for _file in files:
+#         if _file == "planeticket_S153.pdf":  
+#             os.remove(os.path.join(dirpath, _file))
+#         print(_file)
+    
