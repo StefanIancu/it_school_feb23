@@ -250,7 +250,7 @@ class BookFlight:
             number, seat, name, destination, date, flight, departure_time, gate
         )
         # updating the database with the information from the user
-        develop_data_object.update_db(name, destination, price, number, flight, gate)
+        develop_data_object.update_db(name, destination, price, number, flight, gate, date)
         logging.info("Ticket generated.")
         if check_email():
             send_email(name, number, date, price, seat, luggage, destination.title(), flight)
@@ -451,13 +451,13 @@ class Database(BookFlight):
         self.connection = sqlite3.connect(path)
         self.cursor = self.connection.cursor()
 
-    def update_db(self, name, destination, price, number, flight, gate):
+    def update_db(self, name, destination, price, number, flight, gate, flight_date):
         """Method that updates the flights database with all the information from the user."""
         with open(USER_PATH, "r") as fin:
             user = json.load(fin)
         self.cursor.execute(
-            """INSERT INTO flights ("name", "destination", "cost", "ticket", "flight_nr", "gate", "user") VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            (name, destination.title(), price, number, flight.upper(), gate, user)
+            """INSERT INTO flights ("name", "destination", "cost", "ticket", "flight_nr", "gate", "user", "date") VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (name, destination.title(), price, number, flight.upper(), gate, user, f"{flight_date}.{DATE}")
         )
         self.connection.commit()
 
@@ -466,12 +466,12 @@ class Database(BookFlight):
         with open(USER_PATH,  "r") as fin:
             user = json.load(fin)
         rows = self.cursor.execute(
-            """SELECT "name", "destination", "cost", "ticket", "flight_nr", "gate" FROM flights
+            """SELECT "name", "destination", "cost", "ticket", "flight_nr", "gate", "date" FROM flights
             where user ==?""", (user,))
         for row in rows:
-            name, destination, cost, ticket, flight, gate = row
+            name, destination, cost, ticket, flight, gate, flight_date = row
             print(
-                f"{name}, {FROM}->{destination}, €{cost}, ticket no.{ticket}, flight number {flight}, gate {gate}."
+                f"{name}, {FROM}->{destination}, €{cost}, ticket no.{ticket}, flight number {flight}, gate {gate} on {flight_date}."
             )
 
 # staff only
@@ -601,6 +601,18 @@ class Database(BookFlight):
         for row in rows:
             time, gate = row
             return time, gate
+        
+    def return_time_of_flight(self, flight_number: str) -> tuple: # type: ignore
+        """Method that returns the departure time of a specific flight."""
+        rows = self.cursor.execute(
+            """SELECT time FROM departures WHERE flight_number == ? 
+            """,
+            (flight_number,),
+        )
+        for row in rows:
+            time = row
+            return time[0]
+
 
 # a while loop + this method should not let the user advance if there are 0 seats
     def check_seats(self, flight_number):
@@ -614,6 +626,13 @@ class Database(BookFlight):
         for row in rows:
             return row[0] == 1
         
+    def check_flight_date(self, ticket_number):
+        """Method that returns the date of a specific flight."""
+        rows = self.cursor.execute("""SELECT "date" from flights where "ticket" == ?""",
+                                   (ticket_number, ))
+        for row in rows:
+            flight_date = row[0]
+            return flight_date
 
 # check tickets stats
     @staticmethod
@@ -940,28 +959,17 @@ class CheckIn:
     def title(self):
         return self.__title
     
-    #preferable to break this in two functions. one with the checking of the date 
-    #and this just to take input for the check-in and proceed with it
+    #WORK IN PROGRESS
     def self_check_in(self):
-        present_time = strftime("%d.%m, %H:%M")
-        start_time = datetime.strptime(present_time, "%d.%m, %H:%M")
-        month = now.month
         develop_data_object.read_database()
         print("NOTE: Check-in only available 24h or less before flight time. ")
         while True:
             ticket = input("Enter ticket number for check-in: ")
-            if develop_data_object.get_ticket_existence(ticket):
+            if develop_data_object.get_ticket_existence(ticket.upper()):
+                date_flight = develop_data_object.check_flight_date(ticket.upper())
                 flight = input("Please confirm your flight number: ")
-                departure_time = develop_data_object.read_dep_time(flight)[0]
-                end_time = datetime.strptime(f"30.0{month}, {departure_time}", "%d.%m, %H:%M")
-                delta = start_time - end_time
-                sec = delta.total_seconds()
-                hours = sec / (60 * 60)
-                if hours <= 24:
-                    print("Check-in completed.")
+                if check.check_date(date_flight, flight.upper()):
                     break
-                else:
-                    print("Check-in closed.")
             else:
                 print(f"Ticket {ticket} doesn't exist.")
 
@@ -974,19 +982,22 @@ class CheckIn:
         if flight != None:
             present_time = strftime("%d.%m.%y, %H:%M")
             start_time = datetime.strptime(present_time, "%d.%m.%y, %H:%M")
-            departure_time = develop_data_object.read_dep_time(flight)[0]
-            end_time = datetime.strptime(f"{day}.{DATE}, {departure_time}", "%d.%m.%y, %H:%M")
+            departure_time = develop_data_object.return_time_of_flight(flight)
+            end_time = datetime.strptime(f"{day}, {departure_time}", "%d.%m.%y, %H:%M")
 
             delta = end_time - start_time
             sec = delta.total_seconds()
             hours = sec / (60 * 60)
 
             if hours > 24:
-                print(f"Diferenta dintre {day}.{DATE}, {departure_time} si {start_time} este de {hours} ore.")
+                print(f"Check-in closed. {hours} hours to your flight.")
+                return False
             elif hours < 0:
-                print(f"Scuze, zborul e in trecut =  au trecut {hours} ore.")
+                print(f"Cannot check-in for a past flight.")
+                return False
             elif hours <= 24:
-                print(f"Corect, mai sunt {hours} ore pana la zbor.") 
+                print(f"Check-in completed! {hours} hours to your flight!") 
+                return True
         else:
             present_time = strftime("%d.%m.%y")
             start_time = datetime.strptime(present_time, "%d.%m.%y")
@@ -998,12 +1009,5 @@ class CheckIn:
 
             return True if hours >= 0 else False
 
-
 check = CheckIn("title")
 
-# for dirpath, dir, files in os.walk(TICKETS):
-#     for _file in files:
-#         if _file == "planeticket_S153.pdf":  
-#             os.remove(os.path.join(dirpath, _file))
-#         print(_file)
-    

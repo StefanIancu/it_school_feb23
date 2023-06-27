@@ -179,7 +179,7 @@ main_menu.add_choice(DelFlight("Delete a reservation"))
 main_menu.add_choice(TravelTo("Where to travel"))
 main_menu.add_choice(GiveHelp("Get help"))
 main_menu.add_choice(StaffOnly("Staff only"))
-main_menu.add_choice(ExitItem("Exit"))
+main_menu.add_choice(ExitItem("Log out"))
 
 
 # continuous execution until the user decides to exit the program
