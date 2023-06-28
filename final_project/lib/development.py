@@ -87,6 +87,10 @@ EMAIL_USER = "pythontest.odyssey2001@gmail.com"
 EMAIL_SERVER = "smtp.gmail.com"
 EMAIL_SERVER_PORT = 465
 
+# symbols 
+db_not_check_in = "❌"
+db_check_in = "✅"
+
 # creating a class for each menu option. each class has certain methods that
 # work together (doc-string can be found for each method)
 
@@ -456,8 +460,8 @@ class Database(BookFlight):
         with open(USER_PATH, "r") as fin:
             user = json.load(fin)
         self.cursor.execute(
-            """INSERT INTO flights ("name", "destination", "cost", "ticket", "flight_nr", "gate", "user", "date") VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-            (name, destination.title(), price, number, flight.upper(), gate, user, f"{flight_date}.{DATE}")
+            """INSERT INTO flights ("name", "destination", "cost", "ticket", "flight_nr", "gate", "user", "date", "check_in") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (name, destination.title(), price, number, flight.upper(), gate, user, f"{flight_date}.{DATE}", db_not_check_in)
         )
         self.connection.commit()
 
@@ -466,12 +470,12 @@ class Database(BookFlight):
         with open(USER_PATH,  "r") as fin:
             user = json.load(fin)
         rows = self.cursor.execute(
-            """SELECT "name", "destination", "cost", "ticket", "flight_nr", "gate", "date" FROM flights
+            """SELECT "name", "destination", "cost", "ticket", "flight_nr", "gate", "date", "check_in" FROM flights
             where user ==?""", (user,))
         for row in rows:
-            name, destination, cost, ticket, flight, gate, flight_date = row
+            name, destination, cost, ticket, flight, gate, flight_date, check_in = row
             print(
-                f"{name}, {FROM}->{destination}, €{cost}, ticket no.{ticket}, flight number {flight}, gate {gate} on {flight_date}."
+                f"{name}, {FROM}->{destination}, €{cost}, ticket no.{ticket}, flight number {flight}, gate {gate} on {flight_date} | {check_in}"
             )
 
 # staff only
@@ -613,6 +617,22 @@ class Database(BookFlight):
             time = row
             return time[0]
 
+    def update_check_in(self, ticket_number):
+        """Method that updates the status of a check-in once it is completed."""
+        rows = self.cursor.execute(
+            """UPDATE flights SET check_in = ? WHERE ticket == ?""",
+            (db_check_in, ticket_number)
+            )
+        self.connection.commit()
+
+    def verify_check_in(self, ticket_number):
+        """Method that returns a bool if a check-in if it's already made."""
+        rows = self.cursor.execute(
+            """SELECT EXISTS(SELECT 1 FROM flights WHERE check_in == ? and ticket ==?)""",
+            (db_check_in, ticket_number)
+        )
+        for row in rows:
+            return row[0] == 1
 
 # a while loop + this method should not let the user advance if there are 0 seats
     def check_seats(self, flight_number):
@@ -967,6 +987,7 @@ class CheckIn:
     #WORK IN PROGRESS
     def self_check_in(self):
         develop_data_object.read_database()
+        print("-" * 62)
         print("NOTE: Check-in only available 24h or less before flight time. ")
         while True:
             ticket = input("Enter ticket number for check-in: ")
@@ -974,7 +995,12 @@ class CheckIn:
                 date_flight = develop_data_object.check_flight_date(ticket.upper())
                 flight = input("Please confirm your flight number: ")
                 if check.check_date(date_flight, flight.upper()):
-                    break
+                    if not develop_data_object.verify_check_in(ticket.upper()):
+                        develop_data_object.update_check_in(ticket.upper())
+                        print("Check-in successfully!")
+                        break
+                    else:
+                        print(f"Check-in already made for ticket {ticket.upper()}.")
             else:
                 print(f"Ticket {ticket} doesn't exist.")
 
@@ -995,13 +1021,12 @@ class CheckIn:
             hours = sec / (60 * 60)
 
             if hours > 24:
-                print(f"Check-in closed. {hours} hours to your flight.")
+                print(f"Check-in closed. {round(hours)} hours to your flight.")
                 return False
             elif hours < 0:
                 print(f"Cannot check-in for a past flight.")
                 return False
             elif hours <= 24:
-                print(f"Check-in completed! {hours} hours to your flight!") 
                 return True
         else:
             present_time = strftime("%d.%m.%y")
