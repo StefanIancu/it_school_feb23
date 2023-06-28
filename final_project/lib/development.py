@@ -766,7 +766,8 @@ class User:
             print("")
             print("1 - Log in")
             print("2 - Sign-up")
-            print("3 - Exit")
+            print("3 - Quick check-in")
+            print("4 - Exit")
             choice = input("Please choose an item from the list: ")
             if choice == "1":
                 self.user_authenticate()
@@ -776,6 +777,10 @@ class User:
                 self.user_authenticate()
                 break
             elif choice == "3":
+                self.user_authenticate()
+                check.self_check_in()
+                break
+            elif choice == "4":
                 sys.exit(0)
             else:
                 print("Please choose an item within the range above.")
@@ -1010,4 +1015,3 @@ class CheckIn:
             return True if hours >= 0 else False
 
 check = CheckIn("title")
-
