@@ -6,6 +6,7 @@ from lib.development import (
     DATE,
     DB_PATH,
     User,
+    CheckIn,
     BookFlight,
     CancelFlight,
     Database,
@@ -109,26 +110,13 @@ class DelFlight(MenuItem):
             print(err)
         input("Press any key to return.")
 
-class StaffOnly(MenuItem):
+class UserCheckIn(MenuItem):
     def execute(self):
         print(f"{self.title:-^50}\n")
         try:
-            authenticate()
-        except ValueError as err:
+            check1.self_check_in()
+        except OSError as err:
             print(err)
-        else:
-            while True:
-                print("1 - Flight stats")
-                print("2 - Ticket stats")
-                answer = int(input("Please choose an item from above: "))
-                if answer == 1:
-                    staff_option_one()
-                    break
-                if answer == 2:
-                    staff_option_two()
-                    break
-                else:
-                    print("Not an option")
         input("Press any key to return.")
 
 class MenuUserChoice(MenuItem):
@@ -169,6 +157,9 @@ database = Database(DB_PATH)
 # created a demo object type User to access methods from the class
 user = User("human")
 
+#created a demo object type CheckIn to access methods the class
+check1 = CheckIn("test")
+
 # here are all the menu options. their names can be changed anytime as long as
 # they're strings
 main_menu = MenuUserChoice(f"Welcome to FlyHome!")
@@ -178,7 +169,7 @@ main_menu.add_choice(MyFlights("See your reservations"))
 main_menu.add_choice(DelFlight("Delete a reservation"))
 main_menu.add_choice(TravelTo("Where to travel"))
 main_menu.add_choice(GiveHelp("Get help"))
-main_menu.add_choice(StaffOnly("Staff only"))
+main_menu.add_choice(UserCheckIn("Check-in"))
 main_menu.add_choice(ExitItem("Log out"))
 
 

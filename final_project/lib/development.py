@@ -669,14 +669,20 @@ class Database(BookFlight):
             )
             for row in rows:
                 number1, avg1, sum1 = row
-                print(f"Total number of purchased tickets for {destination.title()} is {number1}, with the average cost of {round(avg1)}€. Income generated {sum1}€.")
+                print(f"Total number of purchased tickets for {destination.title()} is {number1}.") 
+                print(f"The average cost is {round(avg1)}€.")
+                print(f"Income generated {sum1}€.")
+                print("-" * 50)
         else:
             rows = cursor.execute(
                 """SELECT count(ticket), avg(cost), sum(cost)from flights"""
             )
             for row in rows:
                 number, avg, sum = row
-                print(f"Total number of purchased tickets {number}, with the average cost of {round(avg)}€. Income generated {sum}€.")
+                print(f"Total number of purchased tickets: {number}.")
+                print(f"The average cost is {round(avg)}€.")
+                print(f"Income generated {sum}€.")
+                print("-" * 50)
         
 # check flights stats
     @staticmethod
@@ -693,14 +699,18 @@ class Database(BookFlight):
             )
             for row in rows:
                 avg_seats, total_seats = row
-                print(f"The total numbers of seats left for {destination.title()} is {total_seats} with an average of {round(avg_seats)} per flight. ")
+                print(f"The total numbers of seats left for {destination.title()} is {total_seats}.")
+                print(f"The average number of seats is {round(avg_seats)} per flight.")
+                print("-" * 50)
         else:
             rows = cursor.execute(
                 """SELECT avg("seats "), sum("seats ") from departures"""
             )
             for row in rows:
                 average, total = row
-                print(f"The total numbers of available seats is {total} with an average of {round(average)} per flight.")
+                print(f"The total numbers of available seats is {total}.")
+                print(f"The average number of seats is {round(average)} per flight.")
+                print("-" * 50)
 
 develop_data_object = Database(DB_PATH)
 
@@ -787,7 +797,8 @@ class User:
             print("1 - Log in")
             print("2 - Sign-up")
             print("3 - Quick check-in")
-            print("4 - Exit")
+            print("4 - Staff only")
+            print("5 - Exit")
             choice = input("Please choose an item from the list: ")
             if choice == "1":
                 self.user_authenticate()
@@ -801,6 +812,8 @@ class User:
                 check.self_check_in()
                 break
             elif choice == "4":
+                staff_only()
+            elif choice == "5":
                 sys.exit(0)
             else:
                 print("Please choose an item within the range above.")
@@ -860,12 +873,20 @@ def staff_option_one():
             print("2 - Particular flight statistics")
             reports1 = int(input("Choose an option: "))
             if reports1 == 1:
+                print("{:-^50}".format("Flight stats"))
+                print(f"{now}")
                 Database.check_flights_stats()
+                if input("Press any to go back: "):
+                    break
                 break
             if reports1 == 2:
                 answer = input("Choose a destination: ")
                 if answer.lower() in list(DESTINATIONS_AND_PRICES.keys()):
+                    print("{:-^50}".format("Flight stats"))
+                    print(f"{now}")
                     Database.check_flights_stats(answer)
+                    if input("Press any to go back: "):
+                        break
                     break
                 else:
                     print("Not an answer.")
@@ -879,15 +900,24 @@ def staff_option_two():
             print("2 - Particular ticket statistics")
             reports1 = int(input("Choose an option: "))
             if reports1 == 1:
+                print("{:-^50}".format("Ticket stats"))
+                print(f"{now}")
                 Database.check_cost_stats()
-                break
+                if input("Press any to go back: "):
+                    break
+                break   
             if reports1 == 2:
                 answer = input("Choose a destination: ")
                 if answer.lower() in list(DESTINATIONS_AND_PRICES.keys()):
+                    print("{:-^50}".format("Ticket stats"))
+                    print(f"{now}")
                     Database.check_cost_stats(answer)
+                    if input("Press any to go back: "):
+                        break
                     break
                 else:
                     print("Not an answer.")
+
 
 # sends the generated ticket via email to the user
 def send_email(user_name, ticket, date, price, seat, luggage, destination, flight_number):
@@ -984,8 +1014,11 @@ class CheckIn:
     def title(self):
         return self.__title
     
-    #WORK IN PROGRESS
+#lets the user to check-in his flight
     def self_check_in(self):
+        """Method that compares the flight-date with the current date in order
+        to establish if there are less than 24h to the flight. If True, check-in 
+        will proceed. Otherwise, check-in would be locked."""
         develop_data_object.read_database()
         print("-" * 62)
         print("NOTE: Check-in only available 24h or less before flight time. ")
@@ -1040,3 +1073,24 @@ class CheckIn:
             return True if hours >= 0 else False
 
 check = CheckIn("title")
+
+def staff_only():
+    """Method that combines the two staff options and binds them together into 
+    a sub-menu choice."""
+    try:
+        authenticate()
+    except ValueError as err:
+        print(err)
+    else:
+        while True:
+            print("1 - Flight stats")
+            print("2 - Ticket stats")
+            answer = int(input("Please choose an item from above: "))
+            if answer == 1:
+                staff_option_one()
+                break
+            if answer == 2:
+                staff_option_two()
+                break
+            else:
+                print("Not an option")
