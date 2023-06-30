@@ -144,7 +144,7 @@ class MenuUserChoice(MenuItem):
 
 class ExitItem(MenuItem):
     def execute(self):
-        print("Program closed. Thank you for choosing us.")
+        print("Logged out.")
         sys.exit(0)
 
 
