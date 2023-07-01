@@ -869,54 +869,60 @@ def staff_option_one():
     """Method for the "Staff only" screen that represents the first option. 
     Works based on the database and returns flight statistics for the staff."""
     while True:
+            print("{:-^50}".format("Flight stats"))
             print("1 - General flight statistics")
             print("2 - Particular flight statistics")
-            reports1 = int(input("Choose an option: "))
-            if reports1 == 1:
-                print("{:-^50}".format("Flight stats"))
+            reports1 = input("Choose an option: ")
+            if reports1 == "1":
+                print("{:-^50}".format("General flight stats"))
                 print(f"{now}")
                 Database.check_flights_stats()
                 if input("Press any to go back: "):
                     break
                 break
-            if reports1 == 2:
+            if reports1 == "2":
                 answer = input("Choose a destination: ")
                 if answer.lower() in list(DESTINATIONS_AND_PRICES.keys()):
-                    print("{:-^50}".format("Flight stats"))
+                    print("{:-^50}".format("Particular flight stats"))
                     print(f"{now}")
                     Database.check_flights_stats(answer)
                     if input("Press any to go back: "):
                         break
                     break
-                else:
-                    print("Not an answer.")
+            elif any(i for i in reports1 if i in punctuation):
+                print("No characters allowed.")
+            else:
+                print("Not an answer.")
 
 #sub-menu for "Staff only" option in main
 def staff_option_two():
     """Method for the "Staff only" screen that represents the second option. 
     Works based on the database and returns ticket statistics for the staff."""
     while True:
+            print("{:-^50}".format("Ticket stats"))
             print("1 - General ticket statistics")
             print("2 - Particular ticket statistics")
-            reports1 = int(input("Choose an option: "))
-            if reports1 == 1:
-                print("{:-^50}".format("Ticket stats"))
+            reports1 = input("Choose an option: ")
+            if reports1 == "1":
+                print("{:-^50}".format("General ticket stats"))
                 print(f"{now}")
                 Database.check_cost_stats()
                 if input("Press any to go back: "):
                     break
                 break   
-            if reports1 == 2:
+            if reports1 == "2":
                 answer = input("Choose a destination: ")
                 if answer.lower() in list(DESTINATIONS_AND_PRICES.keys()):
-                    print("{:-^50}".format("Ticket stats"))
+                    print("{:-^50}".format("Particular ticket stats"))
                     print(f"{now}")
                     Database.check_cost_stats(answer)
                     if input("Press any to go back: "):
                         break
                     break
-                else:
-                    print("Not an answer.")
+            if any(i for i in reports1 if i in punctuation):
+                print("No characters allowed.")
+            else:
+                print("Not an answer.")
 
 
 # sends the generated ticket via email to the user
@@ -1083,14 +1089,18 @@ def staff_only():
         print(err)
     else:
         while True:
+            print("{:-^50}".format("Staff only"))
             print("1 - Flight stats")
             print("2 - Ticket stats")
-            answer = int(input("Please choose an item from above: "))
-            if answer == 1:
+            answer = input("Please choose an item from above: ")
+            if answer == "1":
                 staff_option_one()
                 break
-            if answer == 2:
+            if answer == "2":
                 staff_option_two()
                 break
+            if any(i for i in answer if i in punctuation):
+                print("No characters allowed.")
             else:
-                print("Not an option")
+                print("Not an option.")
+
